@@ -1,22 +1,78 @@
-# Python compilado
+# ===============================
+# PYTHON
+# ===============================
+
 __pycache__/
 *.py[cod]
 *$py.class
+*.so
+*.pyd
+*.pyo
 
-# Ambientes virtuais
+# Virtual Environment
 venv/
-.venv/
 env/
+.venv/
 
-# Banco de dados e Segredos
-db.sqlite3
-.env
-.env.staging
+# ===============================
+# DJANGO
+# ===============================
 
-# Logs e arquivos temporários
-logs/
 *.log
-
-# Estáticos e Media (uploads)
-static/
+local_settings.py
+db.sqlite3
 media/
+staticfiles/
+
+# ===============================
+# ENVIRONMENT VARIABLES
+# ===============================
+
+.env
+.env.*
+!.env.example
+
+# ===============================
+# DATABASE
+# ===============================
+
+*.sqlite3
+*.sqlite3-journal
+
+# ===============================
+# IDEs
+# ===============================
+
+.vscode/
+.idea/
+*.swp
+
+# ===============================
+# OS
+# ===============================
+
+.DS_Store
+Thumbs.db
+
+# ===============================
+# TEST / COVERAGE
+# ===============================
+
+htmlcov/
+.coverage
+.pytest_cache/
+
+# ===============================
+# NODE (caso frontend seja integrado futuramente)
+# ===============================
+
+node_modules/
+dist/
+build/
+
+# ===============================
+# MISC
+# ===============================
+
+*.bak
+*.tmp
