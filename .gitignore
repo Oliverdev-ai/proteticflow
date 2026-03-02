@@ -1,0 +1,22 @@
+# Python compilado
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Ambientes virtuais
+venv/
+.venv/
+env/
+
+# Banco de dados e Segredos
+db.sqlite3
+.env
+.env.staging
+
+# Logs e arquivos temporários
+logs/
+*.log
+
+# Estáticos e Media (uploads)
+static/
+media/

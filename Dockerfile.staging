@@ -1,0 +1,81 @@
+# Dockerfile para ambiente de staging
+# Inclui ferramentas de teste e debugging
+
+FROM python:3.11-slim as builder
+
+# Instalar dependências do sistema para build
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libpq-dev \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Criar usuário não-root
+RUN useradd --create-home --shell /bin/bash app
+
+# Configurar diretório de trabalho
+WORKDIR /app
+
+# Copiar e instalar dependências Python
+COPY requirements.txt requirements.staging.txt ./
+RUN pip install --no-cache-dir --user -r requirements.staging.txt
+
+# Stage final para staging
+FROM python:3.11-slim
+
+# Instalar dependências de runtime e ferramentas de teste
+RUN apt-get update && apt-get install -y \
+    libpq5 \
+    curl \
+    wget \
+    vim \
+    htop \
+    postgresql-client \
+    redis-tools \
+    && rm -rf /var/lib/apt/lists/*
+
+# Criar usuário não-root
+RUN useradd --create-home --shell /bin/bash app
+
+# Configurar diretório de trabalho
+WORKDIR /app
+
+# Copiar dependências Python do builder
+COPY --from=builder /root/.local /home/app/.local
+
+# Copiar código da aplicação
+COPY --chown=app:app . .
+
+# Criar diretórios necessários
+RUN mkdir -p /app/staticfiles /app/media /app/logs /app/test-reports /app/fixtures && \
+    chown -R app:app /app
+
+# Configurar PATH para incluir pacotes do usuário
+ENV PATH=/home/app/.local/bin:$PATH
+
+# Configurar variáveis de ambiente para staging
+ENV DJANGO_SETTINGS_MODULE=labmanager.settings_staging
+ENV PYTHONPATH=/app
+ENV ENVIRONMENT=staging
+
+# Mudar para usuário não-root
+USER app
+
+# Copiar fixtures de teste
+COPY --chown=app:app ./fixtures/ /app/fixtures/
+
+# Health check mais detalhado para staging
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8000/admin/ && \
+        curl -f http://localhost:8000/api/health/ || exit 1
+
+# Expor porta
+EXPOSE 8000
+
+# Script de inicialização para staging
+COPY --chown=app:app ./scripts/staging-entrypoint.sh /app/staging-entrypoint.sh
+RUN chmod +x /app/staging-entrypoint.sh
+
+# Comando padrão para staging
+CMD ["/app/staging-entrypoint.sh"]
+
