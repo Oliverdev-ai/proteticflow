@@ -1,0 +1,1 @@
+# Centralização de utilitários do core (erros, validação, tasks, etc) 

@@ -1,0 +1,58 @@
+# Incluir todas as dependências de produção
+-r requirements.txt
+
+# Ferramentas de teste e debugging para staging
+django-debug-toolbar>=4.2
+django-extensions>=3.2
+django-silk>=5.0
+
+# Testes automatizados
+selenium>=4.15
+pytest-selenium>=4.1
+pytest-html>=4.1
+pytest-xdist>=3.3
+pytest-mock>=3.12
+factory-boy>=3.3
+faker>=20.1
+
+# Performance e load testing
+locust>=2.17
+django-test-plus>=2.2
+
+# Monitoramento e profiling
+django-prometheus>=2.3
+memory-profiler>=0.61
+py-spy>=0.3
+
+# Ferramentas de desenvolvimento
+ipython>=8.17
+ipdb>=0.13
+django-shell-plus>=1.1
+
+# Validação de dados de teste
+jsonschema>=4.19
+cerberus>=1.3
+
+# Geração de dados de teste
+mimesis>=11.1
+model-bakery>=1.17
+
+# Análise de código
+bandit>=1.7
+safety>=2.3
+
+# Documentação de API
+drf-yasg>=1.21
+drf-spectacular>=0.27
+
+# Email testing
+django-mailer>=2.3
+
+# Ferramentas de CI/CD
+coverage>=7.3
+codecov>=2.1
+
+# Debugging de rede
+requests-toolbelt>=1.0
+httpie>=3.2
+
