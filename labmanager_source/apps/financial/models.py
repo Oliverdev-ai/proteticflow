@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.conf import settings
 from decimal import Decimal
 
 class AccountsReceivable(models.Model):
@@ -67,6 +68,60 @@ class AccountsReceivable(models.Model):
         ordering = ['-created_at']
 
 
+class AccountsPayable(models.Model):
+    """Model for accounts payable - money owed to suppliers."""
+    
+    class Status(models.TextChoices):
+        PENDING = 'pending', _('Pending')
+        PAID = 'paid', _('Paid')
+        OVERDUE = 'overdue', _('Overdue')
+        CANCELLED = 'cancelled', _('Cancelled')
+    
+    supplier = models.ForeignKey(
+        'materials.Supplier', 
+        on_delete=models.SET_NULL, 
+        null=True,
+        blank=True,
+        related_name='accountspayable',
+        verbose_name=_("Supplier")
+    )
+    
+    description = models.CharField(_("Description"), max_length=255)
+    
+    amount = models.DecimalField(
+        _("Amount"), 
+        max_digits=10, 
+        decimal_places=2
+    )
+    
+    issue_date = models.DateField(_("Issue Date"), default=models.functions.Now)
+    due_date = models.DateField(_("Due Date"))
+    payment_date = models.DateField(_("Payment Date"), null=True, blank=True)
+    
+    status = models.CharField(
+        _("Status"),
+        max_length=20,
+        choices=Status.choices,
+        default=Status.PENDING
+    )
+    
+    reference_number = models.CharField(_("Reference Number"), max_length=100, blank=True)
+    notes = models.TextField(_("Notes"), blank=True)
+    
+    created_at = models.DateTimeField(_("Created At"), auto_now_add=True)
+    updated_at = models.DateTimeField(_("Updated At"), auto_now=True)
+    
+    def __str__(self):
+        supplier_name = self.supplier.name if self.supplier else 'Unknown'
+        return f"{supplier_name} - R$ {self.amount}"
+    
+    class Meta:
+        verbose_name = _("Accounts Payable")
+        verbose_name_plural = _("Accounts Payable")
+        ordering = ['-due_date']
+
+
+
 class FinancialClosing(models.Model):
     """Model for financial closings - monthly, annual, or by completed jobs."""
     
@@ -104,7 +159,7 @@ class FinancialClosing(models.Model):
     
     created_at = models.DateTimeField(_("Created At"), auto_now_add=True)
     created_by = models.ForeignKey(
-        'auth.User',
+        settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,

@@ -10,7 +10,11 @@ from decimal import Decimal
 import json
 from django.http import HttpResponse
 from django.template.loader import render_to_string
-from weasyprint import HTML
+try:
+    from weasyprint import HTML
+    WEASYPRINT_AVAILABLE = True
+except (ImportError, OSError):
+    WEASYPRINT_AVAILABLE = False
 from django.core.mail import EmailMessage
 
 from .models import AccountsReceivable, AccountsPayable, FinancialClosing, DeliverySchedule, LabSettings
@@ -689,6 +693,8 @@ class FinancialReportsViewSet(viewsets.ViewSet):
         html_string = render_to_string('financial/receivables_report.html', context)
         
         # Generate PDF
+        if not WEASYPRINT_AVAILABLE:
+            return Response({"error": "PDF generation is currently disabled (WeasyPrint not available)"}, status=501)
         pdf_file = HTML(string=html_string).write_pdf()
         
         # Create response
@@ -759,6 +765,8 @@ class FinancialReportsViewSet(viewsets.ViewSet):
         html_string = render_to_string('financial/receivables_report.html', context)
         
         # Generate PDF
+        if not WEASYPRINT_AVAILABLE:
+            return Response({"error": "PDF generation is currently disabled (WeasyPrint not available)"}, status=501)
         pdf_file = HTML(string=html_string).write_pdf()
         
         # Send email

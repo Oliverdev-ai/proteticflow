@@ -90,13 +90,13 @@ class Employee(models.Model):
     # Status
     is_active = models.BooleanField(_('Ativo'), default=True)
     
-    # Relacionamento com usuário do sistema (opcional)
-    user = models.OneToOneField(
+    # Relacionamento com usuário do sistema
+    user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name='employee_profile',
+        related_name='payroll_employees',
         verbose_name=_('Usuário do Sistema')
     )
     

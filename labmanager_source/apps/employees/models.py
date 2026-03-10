@@ -1,10 +1,17 @@
 from django.db import models
+from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MinValueValidator, MaxValueValidator
 from apps.core.models import TimeStampedModel
 
-class Employee(TimeStampedModel):
+class EmployeeProfile(TimeStampedModel):
     """Model to store information about employees."""
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='employee_profile',
+        verbose_name=_('Usuário do Sistema')
+    )
     name = models.CharField(_("Name"), max_length=255)
     document_number = models.CharField(_("CPF"), max_length=14, unique=True)
     birth_date = models.DateField(_("Birth Date"), null=True, blank=True)
@@ -57,7 +64,7 @@ class Employee(TimeStampedModel):
 class EmployeeSkill(TimeStampedModel):
     """Model to store employee skills and specializations."""
     employee = models.ForeignKey(
-        Employee, 
+        EmployeeProfile, 
         on_delete=models.CASCADE,
         related_name="skills",
         verbose_name=_("Employee")
@@ -88,7 +95,7 @@ class JobAssignment(TimeStampedModel):
         verbose_name=_("Job")
     )
     employee = models.ForeignKey(
-        Employee,
+        EmployeeProfile,
         on_delete=models.CASCADE,
         related_name="job_assignments",
         verbose_name=_("Employee")
@@ -144,7 +151,7 @@ class JobAssignment(TimeStampedModel):
 class CommissionPayment(TimeStampedModel):
     """Model to track commission payments to employees."""
     employee = models.ForeignKey(
-        Employee,
+        EmployeeProfile,
         on_delete=models.CASCADE,
         related_name="commission_payments",
         verbose_name=_("Employee")
