@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import AccountsReceivable, FinancialClosing, DeliverySchedule, LabSettings
+from .models import AccountsReceivable, AccountsPayable, FinancialClosing, DeliverySchedule, LabSettings
 
 class AccountsReceivableSerializer(serializers.ModelSerializer):
     client_name = serializers.CharField(source='client.name', read_only=True)
@@ -13,6 +13,18 @@ class AccountsReceivableSerializer(serializers.ModelSerializer):
             'status', 'notes', 'created_at', 'updated_at'
         ]
         read_only_fields = ['adjusted_amount', 'created_at', 'updated_at']
+
+class AccountsPayableSerializer(serializers.ModelSerializer):
+    supplier_name = serializers.CharField(source='supplier.name', read_only=True)
+    
+    class Meta:
+        model = AccountsPayable
+        fields = [
+            'id', 'supplier', 'supplier_name', 'description',
+            'amount', 'issue_date', 'due_date', 'payment_date', 'status',
+            'reference_number', 'notes', 'created_at', 'updated_at'
+        ]
+        read_only_fields = ['created_at', 'updated_at']
 
 class FinancialClosingSerializer(serializers.ModelSerializer):
     created_by_name = serializers.CharField(source='created_by.username', read_only=True)

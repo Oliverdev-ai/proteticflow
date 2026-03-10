@@ -11,9 +11,10 @@ from core.utils.errors import error_response, log_and_response
 from rest_framework.views import APIView
 from rest_framework.exceptions import ValidationError
 
-from .models import AccountsReceivable, FinancialClosing, DeliverySchedule, LabSettings
+from .models import AccountsReceivable, AccountsPayable, FinancialClosing, DeliverySchedule, LabSettings
 from .serializers import (
     AccountsReceivableSerializer, 
+    AccountsPayableSerializer,
     FinancialClosingSerializer,
     DeliveryScheduleSerializer,
     LabSettingsSerializer
@@ -81,6 +82,32 @@ class AccountsReceivableViewSet(viewsets.ModelViewSet):
         
         return Response(clients_data)
 
+class AccountsPayableViewSet(viewsets.ModelViewSet):
+    queryset = AccountsPayable.objects.all()
+    serializer_class = AccountsPayableSerializer
+    
+    @action(detail=False, methods=['get'])
+    def summary(self, request):
+        """Get summary of accounts payable."""
+        total_pending = self.queryset.filter(status='pending').aggregate(
+            total=Sum('amount')
+        )['total'] or Decimal('0.00')
+        
+        total_paid = self.queryset.filter(status='paid').aggregate(
+            total=Sum('amount')
+        )['total'] or Decimal('0.00')
+        
+        overdue_count = self.queryset.filter(
+            status='pending',
+            due_date__lt=timezone.now().date()
+        ).count()
+        
+        return Response({
+            'total_pending': total_pending,
+            'total_paid': total_paid,
+            'overdue_count': overdue_count,
+            'total_count': self.queryset.count()
+        })
 
 class FinancialClosingViewSet(viewsets.ModelViewSet):
     queryset = FinancialClosing.objects.all()

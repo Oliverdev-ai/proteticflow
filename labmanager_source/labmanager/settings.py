@@ -55,10 +55,17 @@ INSTALLED_APPS = [
     'apps.licensing',
     'apps.materials',
     'apps.employees',
+    'apps.financial',
     # Other apps
     'accounts',
     'ai_assistant',
     'payroll',
+    'access_control',
+    'dashboard',
+    'intelligent_scheduling',
+    'predictive_analytics',
+    'automated_support',
+    'smart_orders',
 ]
 
 MIDDLEWARE = [
@@ -194,17 +201,26 @@ SIMPLE_JWT = {
 # Modelo de usuário customizado
 AUTH_USER_MODEL = 'accounts.CustomUser'
 
-# Security Settings (applied only in production)
+# Security Settings (applied dynamically)
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_BROWSER_XSS_FILTER = True
+
 if not DEBUG:
+    # Em produção, segurança é ativada por padrão a menos que explicitamente desativada
+    SECURE_SSL_REDIRECT = os.environ.get('SECURE_SSL_REDIRECT', 'True').lower() == 'true'
+    SECURE_HSTS_SECONDS = int(os.environ.get('SECURE_HSTS_SECONDS', '31536000'))
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = os.environ.get('SECURE_HSTS_INCLUDE_SUBDOMAINS', 'True').lower() == 'true'
+    SECURE_HSTS_PRELOAD = os.environ.get('SECURE_HSTS_PRELOAD', 'True').lower() == 'true'
+    SESSION_COOKIE_SECURE = os.environ.get('SESSION_COOKIE_SECURE', 'True').lower() == 'true'
+    CSRF_COOKIE_SECURE = os.environ.get('CSRF_COOKIE_SECURE', 'True').lower() == 'true'
+else:
+    # Em desenvolvimento, segurança é desativada por padrão
     SECURE_SSL_REDIRECT = os.environ.get('SECURE_SSL_REDIRECT', 'False').lower() == 'true'
     SECURE_HSTS_SECONDS = int(os.environ.get('SECURE_HSTS_SECONDS', '0'))
     SECURE_HSTS_INCLUDE_SUBDOMAINS = os.environ.get('SECURE_HSTS_INCLUDE_SUBDOMAINS', 'False').lower() == 'true'
     SECURE_HSTS_PRELOAD = os.environ.get('SECURE_HSTS_PRELOAD', 'False').lower() == 'true'
-    SECURE_CONTENT_TYPE_NOSNIFF = True
-    SECURE_BROWSER_XSS_FILTER = True
     SESSION_COOKIE_SECURE = os.environ.get('SESSION_COOKIE_SECURE', 'False').lower() == 'true'
     CSRF_COOKIE_SECURE = os.environ.get('CSRF_COOKIE_SECURE', 'False').lower() == 'true'
-
 # File Upload Settings
 FILE_UPLOAD_MAX_MEMORY_SIZE = int(os.environ.get('MAX_UPLOAD_SIZE', '10485760'))  # 10MB
 DATA_UPLOAD_MAX_MEMORY_SIZE = int(os.environ.get('MAX_UPLOAD_SIZE', '10485760'))  # 10MB

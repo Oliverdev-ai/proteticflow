@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-# proteticflow
-=======
 # 🚀 DentalFlow - Sistema Inteligente para Laboratórios Odontológicos
 
 ## 📋 Visão Geral
@@ -342,6 +339,51 @@ suggestions = engine.generate_auto_fill_suggestions(
 )
 ```
 
+## 🤝 **Contribuição**
+
+### **Como Contribuir**
+1. Fork o projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abra um Pull Request
+
+### **Padrões de Código**
+- Siga PEP 8 para Python
+- Use type hints sempre que possível
+- Documente funções e classes
+- Escreva testes para novas funcionalidades
+
+## 📞 **Suporte**
+
+### **Canais de Suporte**
+- 📧 **Email**: suporte@dentalflow.com.br
+- 💬 **WhatsApp**: (11) 99999-9999
+- 🌐 **Site**: https://dentalflow.com.br
+- 📚 **Documentação**: https://docs.dentalflow.com.br
+
+### **Horários de Atendimento**
+- **Segunda a Sexta**: 8h às 18h
+- **Sábado**: 8h às 12h
+- **Plano Empresarial**: Suporte 24/7
+
+## 📄 **Licença**
+
+Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes.
+
+## 🏆 **Reconhecimentos**
+
+- **Melhor Inovação em Tecnologia Odontológica 2024**
+- **Prêmio Startup do Ano - Categoria HealthTech**
+- **Certificação ISO 27001 - Segurança da Informação**
+
+---
+
+**DentalFlow** - *Transformando o futuro dos laboratórios odontológicos através da Inteligência Artificial* 🚀
+
+*Desenvolvido com ❤️ pela equipe DentalFlow*
+
+
 ## Instalação e Execução
 
 1. Crie um ambiente virtual Python:
@@ -379,6 +421,68 @@ celery -A labmanager worker --loglevel=info
 ```
 
 Certifique-se de configurar o backend/broker no settings.py (ex: Redis ou RabbitMQ).
+
+## Exemplos de Uso da API
+
+### Autenticação JWT
+
+1. Obtenha um token:
+
+```bash
+POST /api/token/
+{
+  "username": "seu_usuario",
+  "password": "sua_senha"
+}
+```
+
+2. Use o token para autenticar requests:
+
+```bash
+Authorization: Bearer <seu_token>
+```
+
+### Predição de Receita
+
+```bash
+POST /api/predictive_analytics/revenue-prediction/
+{
+  "months_ahead": 3,
+  "include_factors": true
+}
+```
+
+### Consulta de Métricas do Dashboard
+
+```bash
+GET /api/predictive_analytics/dashboard-data/
+```
+
+## CI/CD e Monitoramento
+
+- Recomenda-se usar GitHub Actions, GitLab CI ou similar para rodar testes automatizados a cada push.
+- Para monitoramento de erros em produção, integre o Sentry (https://sentry.io/) ao seu projeto Django.
+
+## Padronização de Código e Qualidade
+
+- Use `flake8` para linting:
+  ```bash
+  flake8 .
+  ```
+- Use `isort` para organizar imports:
+  ```bash
+  isort .
+  ```
+- Recomenda-se uso de tipagem estática com `mypy` para projetos Python modernos:
+  ```bash
+  pip install mypy
+  mypy .
+  ```
+
+## Badges de Qualidade
+
+![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
+![Coverage](https://img.shields.io/badge/coverage-90%25-brightgreen)
 
 ## Deploy com Docker e docker-compose
 
@@ -429,70 +533,15 @@ services:
 docker-compose up --build
 ```
 
-## CI/CD e Monitoramento
+4. Para rodar testes e lint:
+```bash
+docker-compose run web pytest --cov=labmanager_source
+flake8 .
+isort .
+```
 
-- Recomenda-se usar GitHub Actions, GitLab CI ou similar para rodar testes automatizados a cada push.
-- Para monitoramento de erros em produção, integre o Sentry (https://sentry.io/) ao seu projeto Django.
-
-## Padronização de Código e Qualidade
-
-- Use `flake8` para linting:
-  ```bash
-  flake8 .
-  ```
-- Use `isort` para organizar imports:
-  ```bash
-  isort .
-  ```
-- Recomenda-se uso de tipagem estática com `mypy` para projetos Python modernos:
-  ```bash
-  pip install mypy
-  mypy .
-  ```
-
-## 🤝 **Contribuição**
-
-### **Como Contribuir**
-1. Fork o projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
-
-### **Padrões de Código**
-- Siga PEP 8 para Python
-- Use type hints sempre que possível
-- Documente funções e classes
-- Escreva testes para novas funcionalidades
-
-## 📞 **Suporte**
-
-### **Canais de Suporte**
-- 📧 **Email**: suporte@dentalflow.com.br
-- 💬 **WhatsApp**: (11) 99999-9999
-- 🌐 **Site**: https://dentalflow.com.br
-- 📚 **Documentação**: https://docs.dentalflow.com.br
-
-### **Horários de Atendimento**
-- **Segunda a Sexta**: 8h às 18h
-- **Sábado**: 8h às 12h
-- **Plano Empresarial**: Suporte 24/7
-
-## 📄 **Licença**
-
-Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes.
-
-## 🏆 **Reconhecimentos**
-
-- **Melhor Inovação em Tecnologia Odontológica 2024**
-- **Prêmio Startup do Ano - Categoria HealthTech**
-- **Certificação ISO 27001 - Segurança da Informação**
-- ![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
-- ![Coverage](https://img.shields.io/badge/coverage-90%25-brightgreen)
-
----
-
-**DentalFlow** - *Transformando o futuro dos laboratórios odontológicos através da Inteligência Artificial* 🚀
-
-*Desenvolvido com ❤️ pela equipe DentalFlow*
-
+5. Para rodar o mypy (tipagem):
+```bash
+pip install mypy
+mypy .
+```

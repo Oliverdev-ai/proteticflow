@@ -1,88 +1,77 @@
-# Build outputs e Dependências
-**/node_modules
-.pnpm-store/
-dist/
-build/
-*.dist
-jspm_packages/
-.npm
-.eslintcache
-.rpt2_cache/
-.rts2_cache_cjs/
-.rts2_cache_es/
-.rts2_cache_umd/
-.node_repl_history
-*.tgz
-.yarn-integrity
-.cache
-.parcel-cache
-.next
-.nuxt
-.storybook-out
-tmp/
-temp/
+<<<<<<< HEAD
+# ===============================
+# PYTHON
+# ===============================
 
-# Environment variables
-.env
-.env.local
-.env.staging
-.env.development.local
-.env.test.local
-.env.production.local
-
-# Python / Virtual Environments
-venv/
-.venv/
-env/
 __pycache__/
 *.py[cod]
 *$py.class
+*.so
+*.pyd
+*.pyo
 
-# Banco de dados e Webdev
-*.db
-*.sqlite
-*.sqlite3
+# Virtual Environment
+venv/
+env/
+.venv/
+
+# ===============================
+# DJANGO
+# ===============================
+
+*.log
+local_settings.py
 db.sqlite3
-.webdev/
+media/
+staticfiles/
 
-# IDE files
+# ===============================
+# ENVIRONMENT VARIABLES
+# ===============================
+
+.env
+.env.*
+!.env.example
+
+# ===============================
+# DATABASE
+# ===============================
+
+*.sqlite3
+*.sqlite3-journal
+
+# ===============================
+# IDEs
+# ===============================
+
+.vscode/
+.idea/
+*.swp
+
+# ===============================
+# OS
+# ===============================
+
+.DS_Store
+Thumbs.db
+
+# ===============================
+# TEST / COVERAGE
+# ===============================
+
+htmlcov/
+.coverage
+.pytest_cache/
+
+# Node modules
+node_modules/
+
+# IDEs
 .vscode/
 .idea/
 *.swp
 *.swo
-*~
 
 # OS generated files
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
 Thumbs.db
-
-# Logs & temporários
-logs/
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-pids
-*.pid
-*.seed
-*.pid.lock
-*.bak
-
-# Coverage directories
-coverage/
-*.lcov
-.nyc_output
-
-# TypeScript
-*.tsbuildinfo
-
-# Estáticos e Media
-static/
-media/

@@ -8,10 +8,14 @@ from django.http import HttpResponse
 import datetime
 from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
-from weasyprint import HTML
+try:
+    from weasyprint import HTML
+    WEASYPRINT_AVAILABLE = True
+except (ImportError, OSError):
+    WEASYPRINT_AVAILABLE = False
 
 from .models import (
-    Employee,
+    EmployeeProfile as Employee,
     EmployeeSkill,
     JobAssignment,
     CommissionPayment,
@@ -111,6 +115,8 @@ class EmployeeViewSet(viewsets.ModelViewSet):
         format_type = request.query_params.get('format', 'json')
         
         if format_type == 'pdf':
+            if not WEASYPRINT_AVAILABLE:
+                return Response({"error": "PDF generation is currently disabled (WeasyPrint not available)"}, status=501)
             # Generate PDF
             html_string = render_to_string('employees/production_report.html', report_data)
             pdf_file = HTML(string=html_string).write_pdf()
@@ -129,6 +135,8 @@ class EmployeeViewSet(viewsets.ModelViewSet):
                 )
             
             # Generate PDF
+            if not WEASYPRINT_AVAILABLE:
+                return Response({"error": "PDF generation is currently disabled (WeasyPrint not available)"}, status=501)
             html_string = render_to_string('employees/production_report.html', report_data)
             pdf_file = HTML(string=html_string).write_pdf()
             
@@ -323,6 +331,8 @@ class CommissionPaymentViewSet(viewsets.ModelViewSet):
         }
         
         # Generate PDF
+        if not WEASYPRINT_AVAILABLE:
+            return Response({"error": "PDF generation is currently disabled (WeasyPrint not available)"}, status=501)
         html_string = render_to_string('employees/commission_payment.html', report_data)
         pdf_file = HTML(string=html_string).write_pdf()
         
@@ -353,6 +363,8 @@ class CommissionPaymentViewSet(viewsets.ModelViewSet):
         }
         
         # Generate PDF
+        if not WEASYPRINT_AVAILABLE:
+            return Response({"error": "PDF generation is currently disabled (WeasyPrint not available)"}, status=501)
         html_string = render_to_string('employees/commission_payment.html', report_data)
         pdf_file = HTML(string=html_string).write_pdf()
         
