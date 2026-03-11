@@ -15,5 +15,19 @@ class CoreConfig(AppConfig):
         """
         Perform initialization tasks when the app is ready.
         """
-        pass
+        from auditlog.registry import auditlog
+        from accounts.models import CustomUser
+        from apps.employees.models import EmployeeProfile
+        from apps.jobs.models import Job, JobItem
+        from apps.clients.models import Client
+        from apps.financial.models import AccountsReceivable, AccountsPayable
+
+        # Registrar modelos críticos na Trilha de Auditoria (LGPD)
+        auditlog.register(CustomUser)
+        auditlog.register(EmployeeProfile)
+        auditlog.register(Job)
+        auditlog.register(JobItem)
+        auditlog.register(Client)
+        auditlog.register(AccountsReceivable)
+        auditlog.register(AccountsPayable)
 

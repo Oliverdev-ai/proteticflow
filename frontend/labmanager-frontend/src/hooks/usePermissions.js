@@ -20,7 +20,7 @@ const ROLE_PERMISSIONS = {
 };
 
 const usePermissions = () => {
-    const { user, isLoading } = useAuth();
+    const { user, permissions: authPerms, isLoading } = useAuth();
 
     /**
      * Verifica se o usuário autenticado possui acesso ao módulo especificado.
@@ -28,11 +28,9 @@ const usePermissions = () => {
      * @returns {boolean} - true se tiver permissão, false caso contrário.
      */
     const can = (module) => {
-        // Se o user não carregou ainda ou não tem role, negue
-        if (!user || (!user.role && !user.user_type)) return false;
-
-        // Suporte transicional: role ou user_type
-        const role = user.role || user.user_type;
+        // Obter o role do user ou do fallback permissions
+        const role = user?.role || user?.user_type || authPerms?.role;
+        if (!role) return false;
 
         // Resgata o array de permissões do papel. Se não existir, retorna array vazio
         const permissions = ROLE_PERMISSIONS[role] || [];
@@ -44,15 +42,18 @@ const usePermissions = () => {
      * Retorna o array bruto de permissões atrelado à sessão atual
      */
     const getMyPermissions = () => {
-        if (!user || (!user.role && !user.user_type)) return [];
-        const role = user.role || user.user_type;
+        const role = user?.role || user?.user_type || authPerms?.role;
+        if (!role) return [];
         return ROLE_PERMISSIONS[role] || [];
     };
 
     return {
         can,
         getMyPermissions,
-        isSuperAdmin: () => (user?.role || user?.user_type) === 'superadmin',
+        isSuperAdmin: () => {
+            const role = user?.role || user?.user_type || authPerms?.role;
+            return role === 'superadmin';
+        },
         isLoading
     };
 };

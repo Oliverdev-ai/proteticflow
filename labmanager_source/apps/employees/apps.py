@@ -12,8 +12,5 @@ class EmployeesConfig(AppConfig):
     verbose_name = _('Employees')
     
     def ready(self):
-        """
-        Perform initialization tasks when the app is ready.
-        """
-        pass
+        import apps.employees.signals
 

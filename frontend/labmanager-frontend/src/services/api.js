@@ -3,7 +3,7 @@ import logger from '../utils/logger.js';
 
 // Exportando API_URL para uso em outros serviços
 export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
-export const TOKEN_URL = import.meta.env.VITE_TOKEN_URL || 'http://localhost:8000/api/token/';
+export const TOKEN_URL = import.meta.env.VITE_TOKEN_URL || 'http://localhost:8000/api/v1/auth/login/';
 
 // Configuração do axios
 const api = axios.create({
@@ -29,26 +29,26 @@ api.interceptors.request.use(
 export const authService = {
   login: async (credentials) => {
     const startTime = performance.now();
-    
+
     try {
       logger.auth('login_attempt', { username: credentials.username });
-      
+
       const response = await axios.post(TOKEN_URL, credentials);
-      
+
       localStorage.setItem('access_token', response.data.access);
       localStorage.setItem('refresh_token', response.data.refresh);
-      
-      // Criar dados básicos do usuário baseado no username
-      const userData = {
+
+      // Armazenar os dados completos do usuário retornados pela API (incluindo 'role')
+      const userData = response.data.user || {
         username: credentials.username,
         is_authenticated: true
       };
       localStorage.setItem('user_data', JSON.stringify(userData));
-      
+
       const endTime = performance.now();
       logger.performance('login_duration', endTime - startTime);
       logger.auth('login_success', { username: credentials.username });
-      
+
       return {
         access: response.data.access,
         refresh: response.data.refresh,
@@ -68,11 +68,11 @@ export const authService = {
   logout: () => {
     const userData = authService.getCurrentUser();
     const username = userData?.username || 'unknown';
-    
+
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('user_data');
-    
+
     logger.auth('logout_success', { username });
   },
   isAuthenticated: () => {
@@ -307,7 +307,7 @@ export const aiAssistantService = {
       throw error;
     }
   },
-  
+
   getAvailableCommands: async () => {
     try {
       const response = await api.get('/ai-assistant/available-commands/');
@@ -316,7 +316,7 @@ export const aiAssistantService = {
       throw error;
     }
   },
-  
+
   getSessions: async () => {
     try {
       const response = await api.get('/ai-assistant/sessions/');
@@ -325,7 +325,7 @@ export const aiAssistantService = {
       throw error;
     }
   },
-  
+
   getSessionMessages: async (sessionId) => {
     try {
       const response = await api.get(`/ai-assistant/sessions/${sessionId}/messages/`);
@@ -334,7 +334,7 @@ export const aiAssistantService = {
       throw error;
     }
   },
-  
+
   quickCommand: async (command) => {
     try {
       const response = await api.post('/ai-assistant/quick-command/', { command });

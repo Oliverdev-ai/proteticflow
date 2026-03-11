@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     'predictive_analytics',
     'automated_support',
     'smart_orders',
+    'auditlog',
 ]
 
 MIDDLEWARE = [
@@ -79,6 +80,7 @@ MIDDLEWARE = [
     'apps.licensing.middleware.LicenseMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'auditlog.middleware.AuditlogMiddleware',
 ]
 
 ROOT_URLCONF = 'labmanager.urls'
