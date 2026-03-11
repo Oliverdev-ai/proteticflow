@@ -28,7 +28,7 @@ class LoginView(APIView):
             access_token = refresh.access_token
             
             # Adiciona informações customizadas ao token
-            access_token['user_type'] = user.user_type
+            access_token['role'] = getattr(user, 'role', 'admin')
             access_token['username'] = user.username
             
             return Response({
@@ -176,7 +176,7 @@ def user_permissions(request):
     user = request.user
     
     permissions_data = {
-        'user_type': getattr(user, 'user_type', 'admin'),
+        'role': getattr(user, 'role', 'admin'),
         'can_access_financial_reports': user.can_access_financial_reports() if hasattr(user, 'can_access_financial_reports') else True,
         'can_modify_settings': user.can_modify_settings() if hasattr(user, 'can_modify_settings') else True,
         'can_delete_records': user.can_delete_records() if hasattr(user, 'can_delete_records') else True,

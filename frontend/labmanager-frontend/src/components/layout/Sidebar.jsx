@@ -2,15 +2,16 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { authService } from '@/services/api';
-import { 
-  HomeIcon, 
-  Users, 
-  Briefcase, 
-  DollarSign, 
-  Settings, 
-  LogOut, 
+import {
+  HomeIcon,
+  Users,
+  Briefcase,
+  DollarSign,
+  Settings,
+  LogOut,
   Menu
 } from 'lucide-react';
+import usePermissions from '../../hooks/usePermissions';
 
 export default function Sidebar({ isMobile = false }) {
   const navigate = useNavigate();
@@ -20,38 +21,50 @@ export default function Sidebar({ isMobile = false }) {
     navigate('/login');
   };
 
+  const { can } = usePermissions();
+
   const NavItems = () => (
     <div className="space-y-1">
-      <Link to="/dashboard">
-        <Button variant="ghost" className="w-full justify-start">
-          <HomeIcon className="mr-2 h-5 w-5" />
-          Dashboard
-        </Button>
-      </Link>
-      <Link to="/clients">
-        <Button variant="ghost" className="w-full justify-start">
-          <Users className="mr-2 h-5 w-5" />
-          Clientes
-        </Button>
-      </Link>
-      <Link to="/jobs">
-        <Button variant="ghost" className="w-full justify-start">
-          <Briefcase className="mr-2 h-5 w-5" />
-          Trabalhos
-        </Button>
-      </Link>
-      <Link to="/pricing">
-        <Button variant="ghost" className="w-full justify-start">
-          <DollarSign className="mr-2 h-5 w-5" />
-          Tabelas de Preços
-        </Button>
-      </Link>
-      <Link to="/settings">
-        <Button variant="ghost" className="w-full justify-start">
-          <Settings className="mr-2 h-5 w-5" />
-          Configurações
-        </Button>
-      </Link>
+      {can('dashboard') && (
+        <Link to="/dashboard">
+          <Button variant="ghost" className="w-full justify-start">
+            <HomeIcon className="mr-2 h-5 w-5" />
+            Dashboard
+          </Button>
+        </Link>
+      )}
+      {can('clients') && (
+        <Link to="/clients">
+          <Button variant="ghost" className="w-full justify-start">
+            <Users className="mr-2 h-5 w-5" />
+            Clientes
+          </Button>
+        </Link>
+      )}
+      {can('jobs') && (
+        <Link to="/jobs">
+          <Button variant="ghost" className="w-full justify-start">
+            <Briefcase className="mr-2 h-5 w-5" />
+            Trabalhos
+          </Button>
+        </Link>
+      )}
+      {can('pricing') && (
+        <Link to="/pricing">
+          <Button variant="ghost" className="w-full justify-start">
+            <DollarSign className="mr-2 h-5 w-5" />
+            Tabelas de Preços
+          </Button>
+        </Link>
+      )}
+      {(can('auth_settings') || can('employees')) && (
+        <Link to="/settings">
+          <Button variant="ghost" className="w-full justify-start">
+            <Settings className="mr-2 h-5 w-5" />
+            Configurações
+          </Button>
+        </Link>
+      )}
       <Button variant="ghost" className="w-full justify-start" onClick={handleLogout}>
         <LogOut className="mr-2 h-5 w-5" />
         Sair

@@ -2,6 +2,7 @@ from rest_framework import viewsets, status, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from .permissions import IsGerente, IsSuperAdmin, IsRecepcao, IsProducao, IsContabil, AnyRole
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db import transaction
 from django.http import HttpResponse
@@ -37,7 +38,7 @@ class EmployeeViewSet(viewsets.ModelViewSet):
     """
     queryset = Employee.objects.all()
     serializer_class = EmployeeSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsGerente]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_class = EmployeeFilter
     search_fields = ['name', 'document_number', 'position', 'department']
@@ -179,7 +180,7 @@ class EmployeeSkillViewSet(viewsets.ModelViewSet):
     """
     queryset = EmployeeSkill.objects.all()
     serializer_class = EmployeeSkillSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsGerente]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = ['employee', 'skill_name', 'proficiency_level']
     search_fields = ['skill_name', 'description']
@@ -191,7 +192,8 @@ class JobAssignmentViewSet(viewsets.ModelViewSet):
     """
     queryset = JobAssignment.objects.all()
     serializer_class = JobAssignmentSerializer
-    permission_classes = [IsAuthenticated]
+    # Job Assignments = Kanban/Jobs, operacionais podem ver
+    permission_classes = [AnyRole]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_class = JobAssignmentFilter
     search_fields = ['job__order_number', 'employee__name', 'task_description']
@@ -233,7 +235,8 @@ class CommissionPaymentViewSet(viewsets.ModelViewSet):
     """
     queryset = CommissionPayment.objects.all()
     serializer_class = CommissionPaymentSerializer
-    permission_classes = [IsAuthenticated]
+    # Commission / Folha de Pagamento = Apenas Gerente+
+    permission_classes = [IsGerente]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_class = CommissionPaymentFilter
     search_fields = ['employee__name', 'payment_method', 'reference_number']
@@ -393,6 +396,6 @@ class CommissionPaymentItemViewSet(viewsets.ModelViewSet):
     """
     queryset = CommissionPaymentItem.objects.all()
     serializer_class = CommissionPaymentItemSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsGerente]
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['payment', 'job_assignment']

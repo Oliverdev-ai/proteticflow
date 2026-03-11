@@ -5,6 +5,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.contrib.auth import get_user_model
+from apps.employees.permissions import IsSuperAdmin
 from django.db.models import Q, Count, Sum
 from datetime import timedelta
 from .models import (
@@ -254,7 +255,7 @@ class UsageSummaryView(APIView):
 
 class UserLimitsUpdateView(APIView):
     """View para atualizar limites de usuário (apenas admins)"""
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsSuperAdmin]
     
     def post(self, request, user_id):
         """Atualiza limites personalizados de um usuário"""
@@ -360,7 +361,7 @@ def track_feature_usage(request):
 
 
 @api_view(['POST'])
-@permission_classes([permissions.IsAuthenticated])
+@permission_classes([IsSuperAdmin])
 def create_access_restriction(request):
     """Cria restrição de acesso (apenas admins)"""
     try:
@@ -394,7 +395,7 @@ def create_access_restriction(request):
 
 
 @api_view(['POST'])
-@permission_classes([permissions.IsAuthenticated])
+@permission_classes([IsSuperAdmin])
 def lift_access_restriction(request, restriction_id):
     """Remove restrição de acesso (apenas admins)"""
     try:
@@ -435,7 +436,7 @@ def lift_access_restriction(request, restriction_id):
 
 
 @api_view(['GET'])
-@permission_classes([permissions.IsAuthenticated])
+@permission_classes([IsSuperAdmin])
 def admin_dashboard_data(request):
     """Dados do dashboard administrativo"""
     try:

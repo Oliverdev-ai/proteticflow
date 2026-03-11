@@ -7,6 +7,7 @@ from django.utils import timezone
 from datetime import datetime, timedelta
 from decimal import Decimal
 from rest_framework.permissions import IsAuthenticated
+from apps.employees.permissions import IsGerente
 from core.utils.errors import error_response, log_and_response
 from rest_framework.views import APIView
 from rest_framework.exceptions import ValidationError
@@ -23,6 +24,7 @@ from .serializers import (
 class AccountsReceivableViewSet(viewsets.ModelViewSet):
     queryset = AccountsReceivable.objects.all()
     serializer_class = AccountsReceivableSerializer
+    permission_classes = [IsGerente]
     
     @action(detail=False, methods=['get'])
     def summary(self, request):
@@ -85,6 +87,7 @@ class AccountsReceivableViewSet(viewsets.ModelViewSet):
 class AccountsPayableViewSet(viewsets.ModelViewSet):
     queryset = AccountsPayable.objects.all()
     serializer_class = AccountsPayableSerializer
+    permission_classes = [IsGerente]
     
     @action(detail=False, methods=['get'])
     def summary(self, request):
@@ -112,6 +115,7 @@ class AccountsPayableViewSet(viewsets.ModelViewSet):
 class FinancialClosingViewSet(viewsets.ModelViewSet):
     queryset = FinancialClosing.objects.all()
     serializer_class = FinancialClosingSerializer
+    permission_classes = [IsGerente]
     
     @action(detail=False, methods=['post'])
     def generate_monthly(self, request):
@@ -173,6 +177,7 @@ class FinancialClosingViewSet(viewsets.ModelViewSet):
 class DeliveryScheduleViewSet(viewsets.ModelViewSet):
     queryset = DeliverySchedule.objects.all()
     serializer_class = DeliveryScheduleSerializer
+    permission_classes = [IsAuthenticated] # Generically readable by delivery/production
     
     @action(detail=False, methods=['get'])
     def today(self, request):
@@ -225,6 +230,7 @@ class DeliveryScheduleViewSet(viewsets.ModelViewSet):
 class LabSettingsViewSet(viewsets.ModelViewSet):
     queryset = LabSettings.objects.all()
     serializer_class = LabSettingsSerializer
+    permission_classes = [IsGerente]
     
     @action(detail=False, methods=['get'])
     def current(self, request):
@@ -243,7 +249,7 @@ class LabSettingsViewSet(viewsets.ModelViewSet):
 
 
 class LogoUploadView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsGerente]
     def post(self, request):
         try:
             # lógica de upload

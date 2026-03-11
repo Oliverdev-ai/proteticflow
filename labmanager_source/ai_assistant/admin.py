@@ -5,7 +5,7 @@ from .models import ChatSession, ChatMessage, AICommand, CommandExecution
 @admin.register(ChatSession)
 class ChatSessionAdmin(admin.ModelAdmin):
     list_display = ('session_id', 'user', 'title', 'created_at', 'is_active')
-    list_filter = ('is_active', 'created_at', 'user__user_type')
+    list_filter = ('is_active', 'created_at', 'user__role')
     search_fields = ('session_id', 'title', 'user__username')
     readonly_fields = ('session_id', 'created_at', 'updated_at')
     

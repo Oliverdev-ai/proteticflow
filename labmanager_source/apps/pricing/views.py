@@ -1,6 +1,7 @@
 from rest_framework import viewsets, permissions
 from .models import PriceTable, ServiceItem
 from .serializers import PriceTableSerializer, PriceTableDetailSerializer, ServiceItemSerializer
+from apps.employees.permissions import AnyRole, IsGerente
 
 # Create your views here.
 
@@ -11,7 +12,11 @@ class PriceTableViewSet(viewsets.ModelViewSet):
     Uses PriceTableDetailSerializer for retrieve action to include items.
     """
     queryset = PriceTable.objects.all().order_by("name")
-    permission_classes = [permissions.AllowAny] # Adjust permissions later
+    
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            return [AnyRole()]
+        return [IsGerente()]
 
     def get_serializer_class(self):
         if self.action == "retrieve":
@@ -24,7 +29,11 @@ class ServiceItemViewSet(viewsets.ModelViewSet):
     Allows filtering by price_table.
     """
     serializer_class = ServiceItemSerializer
-    permission_classes = [permissions.AllowAny] # Adjust permissions later
+    
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            return [AnyRole()]
+        return [IsGerente()]
     # Allow filtering by price_table ID
     filterset_fields = ["price_table"]
 

@@ -11,7 +11,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = [
             'id', 'username', 'email', 'first_name', 'last_name', 
-            'user_type', 'phone', 'is_active', 'date_joined', 'last_login'
+            'role', 'phone', 'is_active', 'date_joined', 'last_login'
         ]
         read_only_fields = ['id', 'date_joined', 'last_login']
 
@@ -26,7 +26,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = [
             'username', 'email', 'first_name', 'last_name',
-            'user_type', 'phone', 'password', 'password_confirm'
+            'role', 'phone', 'password', 'password_confirm'
         ]
     
     def validate(self, attrs):
@@ -66,12 +66,12 @@ class CollaboratorCreateSerializer(UserCreateSerializer):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Remove o campo user_type para colaboradores
-        self.fields.pop('user_type', None)
+        # Remove o campo role para colaboradores
+        self.fields.pop('role', None)
     
     def create(self, validated_data):
-        # Força o tipo como colaborador
-        validated_data['user_type'] = CustomUser.UserType.COLLABORATOR
+        # Força o tipo como producao
+        validated_data['role'] = CustomUser.UserRole.PRODUCAO
         return super().create(validated_data)
 
 

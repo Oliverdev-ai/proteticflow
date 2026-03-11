@@ -9,7 +9,7 @@ from .serializers import (
 )
 from apps.pricing.models import ServiceItem # Needed for JobItem creation logic
 from rest_framework.permissions import IsAuthenticated
-from core.utils.errors import error_response, log_and_response
+from apps.employees.permissions import AnyRole
 from rest_framework.views import APIView
 from rest_framework.exceptions import ValidationError
 
@@ -19,12 +19,12 @@ class JobStageViewSet(viewsets.ReadOnlyModelViewSet):
     """API endpoint for viewing Job Stages (usually managed via admin)."""
     queryset = JobStage.objects.all().order_by("order")
     serializer_class = JobStageSerializer
-    permission_classes = [permissions.AllowAny] # Or IsAuthenticated
+    permission_classes = [AnyRole]
 
 class JobViewSet(viewsets.ModelViewSet):
     """API endpoint for Jobs."""
     queryset = Job.objects.select_related("client", "current_stage").prefetch_related("job_items__service_item", "logs__user", "photos").order_by("-entry_date")
-    permission_classes = [permissions.AllowAny] # Adjust later
+    permission_classes = [AnyRole]
     filterset_fields = ["client", "status", "current_stage"]
     search_fields = ["order_number", "client__name", "patient_name"]
 
@@ -62,7 +62,7 @@ class JobViewSet(viewsets.ModelViewSet):
 class JobItemViewSet(viewsets.ModelViewSet):
     """API endpoint for Job Items (items within a specific job)."""
     serializer_class = JobItemSerializer
-    permission_classes = [permissions.AllowAny] # Adjust later
+    permission_classes = [AnyRole]
     queryset = JobItem.objects.select_related("job", "service_item").all()
     filterset_fields = ["job"] # Filter by job ID
 
@@ -100,7 +100,7 @@ class JobItemViewSet(viewsets.ModelViewSet):
 class JobLogViewSet(viewsets.ReadOnlyModelViewSet):
     """API endpoint for viewing Job Logs."""
     serializer_class = JobLogSerializer
-    permission_classes = [permissions.AllowAny] # Adjust later
+    permission_classes = [AnyRole]
     queryset = JobLog.objects.select_related("job", "user", "stage").order_by("-timestamp")
     filterset_fields = ["job", "user", "event_type"]
 
@@ -125,6 +125,6 @@ class JobPhotoUploadView(APIView):
             # lógica de upload
             ...
         except ValidationError as e:
-            return error_response('Erro de validação: ' + str(e))
+            return Response({'error': 'Erro de validação: ' + str(e)}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
-            return log_and_response('Erro inesperado ao fazer upload de foto.', exc=e)
+            return Response({'error': 'Erro inesperado ao fazer upload de foto.', 'details': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

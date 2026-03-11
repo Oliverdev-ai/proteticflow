@@ -14,6 +14,7 @@ import FinancialClosingPage from './pages/FinancialClosingPage';
 import LabSettingsPage from './pages/LabSettingsPage';
 import PlansPage from './pages/PlansPage';
 import CollaboratorManagementPage from './pages/CollaboratorManagementPage';
+import PrivateRoute from './components/layout/PrivateRoute';
 import AIAssistant from './components/ai/AIAssistant';
 import { Toaster } from './components/ui/toaster';
 import { useAuth } from './contexts/AuthContext';
@@ -45,34 +46,34 @@ function AppContent() {
         {/* Rotas protegidas */}
         <Route path="/" element={<Layout />}>
           <Route index element={<Navigate to="/dashboard" />} />
-          <Route path="dashboard" element={<DashboardPage />} />
-          <Route path="clients" element={<ClientsPage />} />
-          <Route path="clients/new" element={<ClientFormPage />} />
-          <Route path="clients/:id" element={<ClientFormPage />} />
-          <Route path="jobs" element={<JobsPage />} />
-          <Route path="jobs/new" element={<JobFormPage />} />
-          <Route path="jobs/:id" element={<JobFormPage />} />
-          <Route path="jobs/:id/edit" element={<JobFormPage />} />
-          <Route path="delivery-schedule" element={<DeliverySchedulePage />} />
-          <Route path="financial-closing" element={<FinancialClosingPage />} />
-          <Route path="lab-settings" element={<LabSettingsPage />} />
-          <Route path="plans" element={<PlansPage />} />
-          <Route path="collaborators" element={<CollaboratorManagementPage />} />
+          <Route path="dashboard" element={<PrivateRoute module="dashboard"><DashboardPage /></PrivateRoute>} />
+          <Route path="clients" element={<PrivateRoute module="clients"><ClientsPage /></PrivateRoute>} />
+          <Route path="clients/new" element={<PrivateRoute module="clients"><ClientFormPage /></PrivateRoute>} />
+          <Route path="clients/:id" element={<PrivateRoute module="clients"><ClientFormPage /></PrivateRoute>} />
+          <Route path="jobs" element={<PrivateRoute module="jobs"><JobsPage /></PrivateRoute>} />
+          <Route path="jobs/new" element={<PrivateRoute module="jobs"><JobFormPage /></PrivateRoute>} />
+          <Route path="jobs/:id" element={<PrivateRoute module="jobs"><JobFormPage /></PrivateRoute>} />
+          <Route path="jobs/:id/edit" element={<PrivateRoute module="jobs"><JobFormPage /></PrivateRoute>} />
+          <Route path="delivery-schedule" element={<PrivateRoute module="jobs"><DeliverySchedulePage /></PrivateRoute>} />
+          <Route path="financial-closing" element={<PrivateRoute module="financial"><FinancialClosingPage /></PrivateRoute>} />
+          <Route path="lab-settings" element={<PrivateRoute module="auth_settings"><LabSettingsPage /></PrivateRoute>} />
+          <Route path="plans" element={<PrivateRoute module="auth_settings"><PlansPage /></PrivateRoute>} />
+          <Route path="collaborators" element={<PrivateRoute module="employees"><CollaboratorManagementPage /></PrivateRoute>} />
         </Route>
 
         {/* Redirecionar para login se não estiver autenticado */}
         <Route path="*" element={<Navigate to={user ? "/dashboard" : "/login"} />} />
       </Routes>
-      
+
       {/* Assistente de IA */}
       {user && (
-        <AIAssistant 
-          isOpen={isAIOpen} 
+        <AIAssistant
+          isOpen={isAIOpen}
           onClose={() => setIsAIOpen(false)}
           onOpen={() => setIsAIOpen(true)}
         />
       )}
-      
+
       <Toaster />
     </Router>
   );

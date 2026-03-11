@@ -1,6 +1,7 @@
 from rest_framework import viewsets, permissions
 from .models import Client
 from .serializers import ClientSerializer
+from apps.employees.permissions import IsRecepcao
 
 # Create your views here.
 
@@ -11,8 +12,8 @@ class ClientViewSet(viewsets.ModelViewSet):
     """
     queryset = Client.objects.filter(is_active=True).order_by("name")
     serializer_class = ClientSerializer
-    # Add permissions later, e.g., IsAuthenticated
-    permission_classes = [permissions.AllowAny] # Start with AllowAny for initial testing
+    serializer_class = ClientSerializer
+    permission_classes = [IsRecepcao]
 
     # Optional: Add custom filtering, search, or pagination
     # filter_backends = [filters.SearchFilter, filters.OrderingFilter]

@@ -9,16 +9,19 @@ class CustomUser(AbstractUser):
     para incluir tipos de usuário (admin/colaborador)
     """
     
-    class UserType(models.TextChoices):
-        ADMIN = 'admin', _('Administrador')
-        COLLABORATOR = 'collaborator', _('Colaborador')
+    class UserRole(models.TextChoices):
+        SUPERADMIN = 'superadmin', _('Super Administrador')
+        GERENTE = 'gerente', _('Gerente')
+        PRODUCAO = 'producao', _('Linha de Produção')
+        RECEPCAO = 'recepcao', _('Recepção')
+        CONTABIL = 'contabil', _('Contábil')
     
-    user_type = models.CharField(
-        _('Tipo de Usuário'),
-        max_length=12,
-        choices=UserType.choices,
-        default=UserType.ADMIN,
-        help_text=_('Define o nível de acesso do usuário no sistema')
+    role = models.CharField(
+        _('Papel do Usuário'),
+        max_length=20,
+        choices=UserRole.choices,
+        default=UserRole.PRODUCAO,
+        help_text=_('Define o nível de acesso e o papel do usuário no sistema')
     )
     
     phone = models.CharField(
@@ -31,34 +34,43 @@ class CustomUser(AbstractUser):
     created_at = models.DateTimeField(_('Criado em'), auto_now_add=True)
     updated_at = models.DateTimeField(_('Atualizado em'), auto_now=True)
     
+    def is_superadmin(self):
+        return self.role == self.UserRole.SUPERADMIN
+        
+    def is_gerente(self):
+        return self.role in [self.UserRole.GERENTE, self.UserRole.SUPERADMIN]
+        
+    def is_recepcao(self):
+        return self.role in [self.UserRole.RECEPCAO, self.UserRole.GERENTE, self.UserRole.SUPERADMIN]
+        
+    def is_producao(self):
+        return self.role in [self.UserRole.PRODUCAO, self.UserRole.GERENTE, self.UserRole.SUPERADMIN]
+        
+    def is_contabil(self):
+        return self.role in [self.UserRole.CONTABIL, self.UserRole.GERENTE, self.UserRole.SUPERADMIN]
+    
     def is_admin(self):
-        """Verifica se o usuário é administrador"""
-        return self.user_type == self.UserType.ADMIN
+        """Verifica se o usuário tem privilégios parecidos com um superadmin/gerente (legado)"""
+        return self.is_gerente()
     
     def is_collaborator(self):
-        """Verifica se o usuário é colaborador"""
-        return self.user_type == self.UserType.COLLABORATOR
+        """Verifica se o usuário é colaborador (legado)"""
+        return self.role in [self.UserRole.PRODUCAO, self.UserRole.RECEPCAO, self.UserRole.CONTABIL]
     
     def can_access_financial_reports(self):
-        """Verifica se o usuário pode acessar relatórios financeiros"""
-        return self.is_admin()
+        return self.is_gerente()
     
     def can_modify_settings(self):
-        """Verifica se o usuário pode modificar configurações do sistema"""
-        return self.is_admin()
+        return self.is_gerente()
     
     def can_delete_records(self):
-        """Verifica se o usuário pode excluir registros"""
-        return self.is_admin()
+        return self.is_superadmin()
     
     def can_access_ai_assistant(self):
-        """Verifica se o usuário pode acessar o assistente de IA"""
-        # Colaboradores só podem usar IA para cadastros e baixas
         return True
     
     def can_use_ai_for_reports(self):
-        """Verifica se o usuário pode usar IA para relatórios"""
-        return self.is_admin()
+        return self.is_gerente()
     
     class Meta:
         verbose_name = _('Usuário')

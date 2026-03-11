@@ -2,6 +2,7 @@ from rest_framework import viewsets, status, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from apps.employees.permissions import IsGerente
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db import transaction, models
 from django.http import HttpResponse
@@ -38,7 +39,7 @@ class SupplierViewSet(viewsets.ModelViewSet):
     """
     queryset = Supplier.objects.all()
     serializer_class = SupplierSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsGerente]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['name', 'document_number', 'contact_person']
     ordering_fields = ['name', 'created_at']
@@ -51,7 +52,7 @@ class MaterialCategoryViewSet(viewsets.ModelViewSet):
     """
     queryset = MaterialCategory.objects.all()
     serializer_class = MaterialCategorySerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsGerente]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['name']
     ordering_fields = ['name']
@@ -64,7 +65,7 @@ class MaterialViewSet(viewsets.ModelViewSet):
     """
     queryset = Material.objects.all()
     serializer_class = MaterialSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsGerente]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_class = MaterialFilter
     search_fields = ['name', 'code', 'barcode']
@@ -125,7 +126,7 @@ class StockMovementViewSet(viewsets.ModelViewSet):
     """
     queryset = StockMovement.objects.all()
     serializer_class = StockMovementSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsGerente]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_class = StockMovementFilter
     search_fields = ['material__name', 'material__code', 'reference', 'notes']
@@ -139,7 +140,7 @@ class PurchaseOrderViewSet(viewsets.ModelViewSet):
     """
     queryset = PurchaseOrder.objects.all()
     serializer_class = PurchaseOrderSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsGerente]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_class = PurchaseOrderFilter
     search_fields = ['order_number', 'supplier__name', 'invoice_number', 'notes']
@@ -308,14 +309,14 @@ class PurchaseOrderItemViewSet(viewsets.ModelViewSet):
     """
     queryset = PurchaseOrderItem.objects.all()
     serializer_class = PurchaseOrderItemSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsGerente]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = ['purchase_order', 'material']
     search_fields = ['material__name', 'material__code']
 
 
 class InvoiceUploadView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsGerente]
     def post(self, request):
         try:
             # lógica de upload
