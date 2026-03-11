@@ -28,7 +28,8 @@ except ImportError:
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-6f7s5e)-m**00y4ki^++xg-vacq3uj0l1pz0zv3*2^ybcpp6g=')
+import secrets
+SECRET_KEY = os.environ.get('SECRET_KEY', secrets.token_urlsafe(50))
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
