@@ -4,6 +4,25 @@
 
 O **DentalFlow** é o primeiro sistema verdadeiramente inteligente para gestão de laboratórios odontológicos, revolucionando a forma como os profissionais gerenciam seus negócios através de **Inteligência Artificial avançada**.
 
+---
+
+## 🏗️ Estrutura Oficial do Repositório (Guia para Desenvolvedores e IAs)
+
+> [!IMPORTANT]
+> **AVISO DE ARQUITETURA:** Todo o desenvolvimento ativo deste projeto ocorre estritamente dentro de duas pastas principais. **Ignorem quaisquer arquivos avulsos na raiz do repositório.**
+
+A base de código está dividida em:
+
+1. **Backend (Django REST Framework)** 👉 pasta `labmanager_source/`
+   - Contém todos os apps, models, views, configurações do banco de dados e endpoints da API.
+   - Qualquer comando `python manage.py` deve ser executado **dentro desta pasta**.
+
+2. **Frontend (React + Vite + Tailwind)** 👉 pasta `frontend/labmanager-frontend/`
+   - Contém toda a interface do usuário, contextos de autenticação, hooks e páginas.
+   - Qualquer comando `npm install` ou `npm run dev` deve ser executado **dentro desta pasta**.
+
+---
+
 ## 🎯 Funcionalidades Principais
 
 ### 🧠 **Flow IA - Assistente Inteligente**
