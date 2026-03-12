@@ -61,6 +61,7 @@ class EmployeeRBACViewSetTestCase(TestCase):
         self.employees_url = reverse('employee-list')
         self.job_assignments_url = reverse('jobassignment-list')
         self.clients_url = reverse('client-list')
+        self.commissions_url = reverse('commissionpayment-list')
 
     def test_employee_list_access_superadmin(self):
         self.client_api.force_authenticate(user=self.superadmin)
@@ -121,3 +122,79 @@ class EmployeeRBACViewSetTestCase(TestCase):
         self.client_api.force_authenticate(user=self.producao)
         response = self.client_api.get(self.clients_url)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_employee_create_as_gerente(self):
+        """1. POST /employees/ como gerente"""
+        self.client_api.force_authenticate(user=self.gerente)
+        new_user = CustomUser.objects.create_user(username='new_emp', password='123', role='producao')
+        data = {
+            'user': new_user.id, 
+            'name': 'Novo Funcionario',
+            'document_number': '12312312344',
+            'department': 'Cerâmica',
+            'position': 'Ceramista',
+            'hire_date': str(date.today())
+        }
+        response = self.client_api.post(self.employees_url, data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['user']['id'], new_user.id)
+
+    def test_employee_soft_delete(self):
+        """2. is_active=False via PATCH + verify list"""
+        self.client_api.force_authenticate(user=self.gerente)
+        # Soft delete
+        response = self.client_api.patch(reverse('employee-detail', args=[self.employee_producao.id]), {'is_active': False})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        
+        # Verify not in list (assuming viewset filters by is_active)
+        response = self.client_api.get(self.employees_url)
+        self.assertNotIn(self.employee_producao.name, [e['name'] for e in response.data.get('results', response.data)])
+
+    def test_commission_access_gerente(self):
+        """3. GET /commission-payments/ como gerente"""
+        self.client_api.force_authenticate(user=self.gerente)
+        response = self.client_api.get(self.commissions_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_commission_access_producao_denied(self):
+        """4. GET /commission-payments/ como producao deve ser bloqueado"""
+        self.client_api.force_authenticate(user=self.producao)
+        response = self.client_api.get(self.commissions_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+class UtilsTests(TestCase):
+    """Testes para utilitários do sistema"""
+
+    def test_xml_parser_nfe(self):
+        """5. parse_nfe_xml() com XML válido"""
+        from apps.materials.xml_parser import parse_nfe_xml
+        import io
+        
+        valid_xml = """<?xml version="1.0" encoding="UTF-8"?>
+        <nfeProc xmlns="http://www.portalfiscal.inf.br/nfe" versao="4.00">
+            <NFe>
+                <infNFe Id="NFe123" versao="4.00">
+                    <ide>
+                        <nNF>12345</nNF>
+                        <dhEmi>2023-10-27T10:00:00-03:00</dhEmi>
+                    </ide>
+                    <emit>
+                        <CNPJ>12345678000199</CNPJ>
+                        <xNome>Fornecedor Teste</xNome>
+                    </emit>
+                    <total>
+                        <ICMSTot>
+                            <vNF>1500.50</vNF>
+                        </ICMSTot>
+                    </total>
+                </infNFe>
+            </NFe>
+        </nfeProc>
+        """
+        xml_file = io.BytesIO(valid_xml.encode('utf-8'))
+        result = parse_nfe_xml(xml_file)
+        
+        self.assertEqual(result['status'], 'sucesso')
+        self.assertEqual(result['numero'], '12345')
+        self.assertEqual(result['data_emissao'], '2023-10-27T10:00:00-03:00')
+        self.assertEqual(result['valor_total'], '1500.50')
