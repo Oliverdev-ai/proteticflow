@@ -10,6 +10,10 @@ from apps.pricing.models import ServiceItem
 from accounts.models import CustomUser
 from payroll.models import PayrollPeriod, PayrollEntry, FinancialReport
 from apps.employees.models import EmployeeProfile
+from predictive_analytics.commands import PredictiveAnalyticsCommands
+from intelligent_scheduling.ml_models import JobTimePredictor
+from predictive_analytics.models import RevenuePredictor, PredictiveAlert
+from smart_orders.models import SmartOrderSuggestion, ReworkPattern
 
 
 class CommandProcessor:
@@ -118,6 +122,42 @@ class CommandProcessor:
                     r'encontrar?\s+cliente\s+(.+)'
                 ],
                 'method': 'search_client',
+                'admin_only': False
+            },
+            'prever_receita': {
+                'patterns': [
+                    r'prever?\s+receita',
+                    r'previs[ãa]o\s+de\s+receita',
+                    r'quanto\s+vamos?\s+faturar',
+                ],
+                'method': 'cmd_prever_receita',
+                'admin_only': True
+            },
+            'estimar_tempo': {
+                'patterns': [
+                    r'estimar?\s+tempo(?:\s+(?:de|do|para)\s+(.+))?',
+                    r'quanto\s+tempo\s+(?:leva|demora)(?:\s+(?:para\s+)?(.+))?',
+                    r'previs[ãa]o\s+de\s+tempo(?:\s+(?:para\s+)?(.+))?',
+                ],
+                'method': 'cmd_estimar_tempo',
+                'admin_only': False
+            },
+            'resumo_analytics': {
+                'patterns': [
+                    r'resumo\s+(?:de\s+)?analytics',
+                    r'an[áa]lise\s+preditiva',
+                    r'insights?\s+(?:de\s+)?dados',
+                ],
+                'method': 'cmd_resumo_analytics',
+                'admin_only': True
+            },
+            'dashboard_pedidos': {
+                'patterns': [
+                    r'dashboard\s+(?:de\s+)?pedidos',
+                    r'pedidos\s+inteligentes',
+                    r'sugest[õo]es\s+(?:de\s+)?pedidos',
+                ],
+                'method': 'cmd_smart_orders_dashboard',
                 'admin_only': False
             }
         }
@@ -655,5 +695,93 @@ class CommandProcessor:
                 'success': False,
                 'message': f'Erro na busca: {str(e)}'
             }
+
+    def cmd_prever_receita(self):
+        try:
+            cmd = PredictiveAnalyticsCommands(self.user)
+            result = cmd.predict_revenue_next_months()
+            if 'message' not in result:
+                result['message'] = result.get('mensagem') or result.get('titulo') or 'Previsao concluida.'
+            return result
+        except Exception as e:
+            return {'success': False, 'message': f'Erro ao prever receita: {str(e)}'}
+
+    def cmd_estimar_tempo(self, tipo_protese=None):
+        try:
+            features = {
+                'prosthesis_type': (tipo_protese or 'coroa').strip(),
+                'material': '',
+                'complexity_level': 2,
+                'technician_skill_level': 2,
+                'technician_efficiency': 1.0,
+                'client_history_avg_time': 32,
+                'entry_date': timezone.now().date()
+            }
+            predictor = JobTimePredictor()
+            prediction = predictor.predict_time(features)
+            if prediction:
+                return {
+                    'success': True,
+                    'message': (
+                        f"Estimativa para {features['prosthesis_type']}: "
+                        f"{prediction['estimated_hours']}h "
+                        f"({prediction['estimated_days']} dias)"
+                    ),
+                    'data': prediction
+                }
+            return {
+                'success': False,
+                'message': 'Dados insuficientes para calcular estimativa.'
+            }
+        except Exception as e:
+            return {'success': False, 'message': f'Erro na estimativa: {str(e)}'}
+
+    def cmd_resumo_analytics(self):
+        try:
+            latest = RevenuePredictor.objects.filter(
+                period_type=RevenuePredictor.PredictionPeriod.MONTHLY
+            ).order_by('-created_at').first()
+            alertas = PredictiveAlert.objects.filter(is_acknowledged=False).count()
+            receita = float(latest.predicted_revenue) if latest else 0
+            confianca = round((latest.confidence_score or 0) * 100, 1) if latest else 0
+            return {
+                'success': True,
+                'message': (
+                    "Resumo Analytics\n\n"
+                    f"Ultima previsao de receita: R$ {receita:,.2f} "
+                    f"(confianca {confianca}%)\n"
+                    f"Alertas ativos: {alertas}"
+                ),
+                'data': {'receita_prevista': receita, 'alertas': alertas}
+            }
+        except Exception as e:
+            return {'success': False, 'message': f'Erro no resumo: {str(e)}'}
+
+    def cmd_smart_orders_dashboard(self):
+        try:
+            trinta_dias = timezone.now().date() - timedelta(days=30)
+            total = SmartOrderSuggestion.objects.filter(
+                created_at__date__gte=trinta_dias
+            ).count()
+            aceitas = SmartOrderSuggestion.objects.filter(
+                created_at__date__gte=trinta_dias,
+                status=SmartOrderSuggestion.SuggestionStatus.ACCEPTED
+            ).count()
+            retrabalho = ReworkPattern.objects.filter(
+                is_active=True, requires_attention=True
+            ).count()
+            taxa = round((aceitas / total) * 100, 1) if total > 0 else 0
+            return {
+                'success': True,
+                'message': (
+                    "Smart Orders - Ultimos 30 dias\n\n"
+                    f"Sugestoes geradas: {total}\n"
+                    f"Aceitas: {aceitas} ({taxa}%)\n"
+                    f"Padroes de retrabalho com atencao: {retrabalho}"
+                ),
+                'data': {'total': total, 'aceitas': aceitas, 'taxa_aceitacao': taxa}
+            }
+        except Exception as e:
+            return {'success': False, 'message': f'Erro no dashboard: {str(e)}'}
 
 
