@@ -47,17 +47,17 @@ class PermissionMiddleware(MiddlewareMixin):
         if request.user.is_superuser:
             return None
         
-        # Obtém o tipo de usuário
-        user_type = getattr(request.user, 'user_type', None)
-        
-        # Se não tem user_type, trata como admin (compatibilidade)
-        if not user_type:
+        # Obtém o papel (role) do usuário
+        role = getattr(request.user, 'role', None)
+
+        # Se não tem role definido, permite acesso (compatibilidade)
+        if not role:
             return None
-        
-        # Verifica restrições para colaboradores
-        if user_type == CustomUser.UserType.COLLABORATOR:
+
+        # Verifica restrições para roles colaboradores (producao, recepcao, contabil)
+        if request.user.is_collaborator():
             return self._check_collaborator_permissions(request)
-        
+
         return None
     
     def _is_auth_url(self, path):

@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 from rest_framework.permissions import IsAuthenticated
 from apps.employees.permissions import IsGerente
-from core.utils.errors import error_response, log_and_response
+from apps.core.utils.errors import error_response, log_and_response
 from rest_framework.views import APIView
 from rest_framework.exceptions import ValidationError
 

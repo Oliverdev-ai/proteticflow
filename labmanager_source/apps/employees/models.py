@@ -5,7 +5,24 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from apps.core.models import TimeStampedModel
 
 class EmployeeProfile(TimeStampedModel):
-    """Model to store information about employees."""
+    """Model to store information about employees — canonical employee record."""
+
+    class EmployeeType(models.TextChoices):
+        TECHNICIAN   = 'technician',   _('Técnico em Prótese')
+        ASSISTANT    = 'assistant',    _('Auxiliar')
+        RECEPTIONIST = 'receptionist', _('Recepcionista')
+        MANAGER      = 'manager',      _('Gerente')
+        OWNER        = 'owner',        _('Proprietário')
+        OTHER        = 'other',        _('Outro')
+
+    class ContractType(models.TextChoices):
+        CLT        = 'clt',        _('CLT')
+        PJ         = 'pj',         _('PJ / MEI')
+        FREELANCER = 'freelancer', _('Freelancer')
+        INTERN     = 'estagio',    _('Estagiário')
+        PARTNER    = 'autonomo',   _('Autônomo')
+        TEMPORARY  = 'temporario', _('Temporário')
+
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -14,47 +31,73 @@ class EmployeeProfile(TimeStampedModel):
     )
     name = models.CharField(_("Name"), max_length=255)
     document_number = models.CharField(_("CPF"), max_length=14, unique=True)
+
+    # ── Dados pessoais ─────────────────────────────────────────
+    rg = models.CharField(_("RG"), max_length=20, blank=True)
     birth_date = models.DateField(_("Birth Date"), null=True, blank=True)
     email = models.EmailField(_("Email"), max_length=254, blank=True, null=True)
     phone = models.CharField(_("Phone"), max_length=20, blank=True)
-    
-    # Address fields
-    address_street = models.CharField(_("Street"), max_length=255, blank=True)
-    address_number = models.CharField(_("Number"), max_length=20, blank=True)
-    address_complement = models.CharField(_("Complement"), max_length=100, blank=True)
+
+    # ── Endereço ────────────────────────────────────────────────
+    address_street       = models.CharField(_("Street"),       max_length=255, blank=True)
+    address_number       = models.CharField(_("Number"),       max_length=20,  blank=True)
+    address_complement   = models.CharField(_("Complement"),   max_length=100, blank=True)
     address_neighborhood = models.CharField(_("Neighborhood"), max_length=100, blank=True)
-    address_city = models.CharField(_("City"), max_length=100, blank=True)
-    address_state = models.CharField(_("State"), max_length=2, blank=True)
-    address_zip_code = models.CharField(_("ZIP Code"), max_length=10, blank=True)
-    
-    # Employment details
-    hire_date = models.DateField(_("Hire Date"))
-    termination_date = models.DateField(_("Termination Date"), null=True, blank=True)
-    position = models.CharField(_("Position"), max_length=100)
-    department = models.CharField(_("Department"), max_length=100, blank=True)
-    
-    # Commission settings
+    address_city         = models.CharField(_("City"),         max_length=100, blank=True)
+    address_state        = models.CharField(_("State"),        max_length=2,   blank=True)
+    address_zip_code     = models.CharField(_("ZIP Code"),     max_length=10,  blank=True)
+
+    # ── Vínculo empregatício ────────────────────────────────────
+    hire_date         = models.DateField(_("Hire Date"))
+    termination_date  = models.DateField(_("Termination Date"), null=True, blank=True)
+    position          = models.CharField(_("Position"),          max_length=100)
+    department        = models.CharField(_("Department"),        max_length=100, blank=True)
+    employee_type     = models.CharField(
+        _("Employee Type"), max_length=20,
+        choices=EmployeeType.choices, blank=True
+    )
+    contract_type     = models.CharField(
+        _("Contract Type"), max_length=20,
+        choices=ContractType.choices, blank=True
+    )
+
+    # ── Remuneração e benefícios ────────────────────────────────
+    base_salary = models.DecimalField(
+        _("Base Salary"), max_digits=10, decimal_places=2, default=0,
+        help_text=_("Salário base mensal")
+    )
+    transport_allowance = models.DecimalField(
+        _("Transport Allowance"), max_digits=8, decimal_places=2, default=0
+    )
+    meal_allowance = models.DecimalField(
+        _("Meal Allowance"), max_digits=8, decimal_places=2, default=0
+    )
+    health_insurance = models.DecimalField(
+        _("Health Insurance"), max_digits=8, decimal_places=2, default=0
+    )
+
+    # ── Comissão ────────────────────────────────────────────────
     commission_percentage = models.DecimalField(
-        _("Commission Percentage"), 
-        max_digits=5, 
-        decimal_places=2, 
+        _("Commission Percentage"),
+        max_digits=5,
+        decimal_places=2,
         default=0.00,
         validators=[MinValueValidator(0), MaxValueValidator(100)],
         help_text=_("Percentage of job value that employee receives as commission")
     )
-    
-    # Banking information for payments
-    bank_name = models.CharField(_("Bank Name"), max_length=100, blank=True)
-    bank_branch = models.CharField(_("Bank Branch"), max_length=20, blank=True)
-    bank_account = models.CharField(_("Bank Account"), max_length=20, blank=True)
-    
-    # Additional information
-    notes = models.TextField(_("Notes"), blank=True)
+
+    # ── Dados bancários ─────────────────────────────────────────
+    bank_name    = models.CharField(_("Bank Name"),    max_length=100, blank=True)
+    bank_branch  = models.CharField(_("Bank Branch"),  max_length=20,  blank=True)
+    bank_account = models.CharField(_("Bank Account"), max_length=30,  blank=True)
+
+    # ── Observações / status ────────────────────────────────────
+    notes     = models.TextField(_("Notes"),     blank=True)
     is_active = models.BooleanField(_("Is Active"), default=True)
-    
+
     def __str__(self):
         return self.name
-    
+
     class Meta:
         verbose_name = _("Employee")
         verbose_name_plural = _("Employees")

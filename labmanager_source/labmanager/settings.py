@@ -29,7 +29,17 @@ except ImportError:
 
 # SECURITY WARNING: keep the secret key used in production secret!
 import secrets
-SECRET_KEY = os.environ.get('SECRET_KEY', secrets.token_urlsafe(50))
+_secret_key = os.environ.get('SECRET_KEY')
+if not _secret_key:
+    if os.environ.get('DEBUG', 'True').lower() == 'true':
+        # Em desenvolvimento, usa um fallback (aceitável localmente)
+        _secret_key = 'dev-only-insecure-key-do-not-use-in-production'
+    else:
+        raise ValueError(
+            "SECRET_KEY não configurada. "
+            "Defina a variável de ambiente SECRET_KEY antes de iniciar em produção."
+        )
+SECRET_KEY = _secret_key
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
@@ -48,6 +58,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
+    'django_filters',
     # Core apps
     'apps.core',
     'apps.clients',

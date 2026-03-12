@@ -35,6 +35,10 @@ export const authService = {
 
       const response = await axios.post(TOKEN_URL, credentials);
 
+      if (response.data.require_2fa) {
+        return response.data;
+      }
+
       localStorage.setItem('access_token', response.data.access);
       localStorage.setItem('refresh_token', response.data.refresh);
 
@@ -62,6 +66,25 @@ export const authService = {
         error: error.message,
         status: error.response?.status
       });
+      throw error;
+    }
+  },
+  login2FA: async (userId, code) => {
+    try {
+      const response = await axios.post(`${API_URL}/auth/login/2fa/`, { user_id: userId, code });
+
+      localStorage.setItem('access_token', response.data.access);
+      localStorage.setItem('refresh_token', response.data.refresh);
+
+      const userData = response.data.user;
+      localStorage.setItem('user_data', JSON.stringify(userData));
+
+      return {
+        access: response.data.access,
+        refresh: response.data.refresh,
+        user: userData
+      };
+    } catch (error) {
       throw error;
     }
   },

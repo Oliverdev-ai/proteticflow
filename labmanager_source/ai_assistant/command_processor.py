@@ -8,7 +8,8 @@ from apps.clients.models import Client
 from apps.jobs.models import Job
 from apps.pricing.models import ServiceItem
 from accounts.models import CustomUser
-from payroll.models import Employee, PayrollPeriod, PayrollEntry, FinancialReport
+from payroll.models import PayrollPeriod, PayrollEntry, FinancialReport
+from apps.employees.models import EmployeeProfile
 
 
 class CommandProcessor:
@@ -402,7 +403,7 @@ class CommandProcessor:
                 if entries.exists():
                     response += f"**Por Funcionário:**\n"
                     for entry in entries[:10]:  # Limita a 10 para não ficar muito longo
-                        response += f"🔹 {entry.employee.full_name}: R$ {entry.net_salary:,.2f}\n"
+                        response += f"🔹 {entry.employee.name}: R$ {entry.net_salary:,.2f}\n"
                     
                     if entries.count() > 10:
                         response += f"... e mais {entries.count() - 10} funcionários\n"
@@ -421,7 +422,7 @@ class CommandProcessor:
                 
             except PayrollPeriod.DoesNotExist:
                 # Sugere criar período
-                active_employees = Employee.objects.filter(is_active=True).count()
+                active_employees = EmployeeProfile.objects.filter(is_active=True).count()
                 
                 response = f"💼 **Folha de Pagamento - {month:02d}/{year}**\n\n"
                 response += f"⚠️ Período ainda não foi criado.\n\n"

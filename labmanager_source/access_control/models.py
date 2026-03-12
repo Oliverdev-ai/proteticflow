@@ -584,3 +584,77 @@ class AccessRestriction(models.Model):
         
         return True
 
+
+class RolePermissionsMatrix(models.Model):
+    """Matriz de permissões de módulos por papel — singleton (sempre id=1).
+
+    A estrutura do JSON é:
+    {
+        "producao":  {"dashboard": true, "jobs": true, ...},
+        "recepcao":  {"dashboard": true, "clients": true, ...},
+        "contabil":  {"dashboard": true, "financial": true, ...},
+        "gerente":   { ... },
+        "superadmin": { ... }
+    }
+    """
+
+    DEFAULT_MATRIX = {
+        "superadmin": {
+            "dashboard": True, "clients": True, "jobs": True,
+            "financial": True, "materials": True, "employees": True,
+            "auth_settings": True, "pricing": True,
+        },
+        "gerente": {
+            "dashboard": True, "clients": True, "jobs": True,
+            "financial": True, "materials": True, "employees": True,
+            "auth_settings": False, "pricing": True,
+        },
+        "recepcao": {
+            "dashboard": True, "clients": True, "jobs": True,
+            "financial": False, "materials": False, "employees": False,
+            "auth_settings": False, "pricing": True,
+        },
+        "producao": {
+            "dashboard": True, "clients": False, "jobs": True,
+            "financial": False, "materials": False, "employees": False,
+            "auth_settings": False, "pricing": False,
+        },
+        "contabil": {
+            "dashboard": True, "clients": False, "jobs": False,
+            "financial": True, "materials": False, "employees": False,
+            "auth_settings": False, "pricing": False,
+        },
+    }
+
+    matrix = models.JSONField(
+        _('Matriz de Permissões'),
+        default=dict,
+        help_text=_('Mapeamento role → módulo → boolean')
+    )
+
+    updated_at = models.DateTimeField(_('Atualizado em'), auto_now=True)
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        verbose_name=_('Atualizado por')
+    )
+
+    class Meta:
+        verbose_name = _('Matriz de Permissões')
+        verbose_name_plural = _('Matrizes de Permissões')
+
+    def __str__(self):
+        return 'Matriz de Permissões RBAC'
+
+    @classmethod
+    def get_singleton(cls):
+        """Retorna (ou cria) a instância singleton com os defaults."""
+        obj, created = cls.objects.get_or_create(
+            pk=1,
+            defaults={'matrix': cls.DEFAULT_MATRIX}
+        )
+        if created or not obj.matrix:
+            obj.matrix = cls.DEFAULT_MATRIX
+            obj.save(update_fields=['matrix'])
+        return obj

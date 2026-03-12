@@ -5,13 +5,14 @@ import LabSettingsPage from './LabSettingsPage';
 import PlansPage from './PlansPage';
 import EmployeesTab from '../components/settings/EmployeesTab';
 import AuthorizationsTab from '../components/settings/AuthorizationsTab';
+import MyProfileTab from '../components/settings/MyProfileTab';
 import usePermissions from '../hooks/usePermissions';
 
 export default function SettingsPage() {
     const { can } = usePermissions();
 
     // Set default tab based on what the user can see
-    const defaultTab = can('auth_settings') ? 'lab' : 'employees';
+    const defaultTab = 'profile';
     const [activeTab, setActiveTab] = useState(defaultTab);
 
     return (
@@ -28,6 +29,10 @@ export default function SettingsPage() {
                 <div className="max-w-7xl mx-auto">
                     <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
                         <TabsList className="bg-white border p-1 rounded-lg shadow-sm">
+                            <TabsTrigger value="profile" className="flex items-center px-4 py-2">
+                                <Users className="w-4 h-4 mr-2" />
+                                Meu Perfil
+                            </TabsTrigger>
                             {can('auth_settings') && (
                                 <TabsTrigger value="lab" className="flex items-center px-4 py-2">
                                     <Settings className="w-4 h-4 mr-2" />
@@ -53,6 +58,10 @@ export default function SettingsPage() {
                                 </TabsTrigger>
                             )}
                         </TabsList>
+
+                        <TabsContent value="profile" className="m-0 border-none p-0 outline-none">
+                            <MyProfileTab />
+                        </TabsContent>
 
                         {can('auth_settings') && (
                             <TabsContent value="lab" className="m-0 border-none p-0 outline-none">

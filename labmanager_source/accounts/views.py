@@ -11,6 +11,7 @@ from .serializers import (
     UserSerializer, UserCreateSerializer, UserUpdateSerializer,
     CollaboratorCreateSerializer, LoginSerializer, PasswordChangeSerializer
 )
+from .services.two_factor import TwoFactorService
 
 
 class LoginView(APIView):
@@ -23,7 +24,15 @@ class LoginView(APIView):
         if serializer.is_valid():
             user = serializer.validated_data['user']
             
-            # Gera tokens JWT
+            # 2FA Interception para cargos sensíveis
+            if user.role in ['superadmin', 'gerente']:
+                return Response({
+                    'require_2fa': True,
+                    'is_setup_required': not user.is_two_factor_enabled,
+                    'user_id': user.id
+                })
+            
+            # Gera tokens JWT direto para roles normais
             refresh = RefreshToken.for_user(user)
             access_token = refresh.access_token
             
@@ -38,6 +47,91 @@ class LoginView(APIView):
             })
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class VerifyLogin2FAView(APIView):
+    """View para validar o código 2FA de login"""
+    permission_classes = [permissions.AllowAny]
+    
+    def post(self, request):
+        user_id = request.data.get('user_id')
+        code = request.data.get('code')
+        
+        if not user_id or not code:
+            return Response({'detail': 'user_id e code são obrigatórios'}, status=400)
+            
+        try:
+            user = CustomUser.objects.get(id=user_id)
+        except CustomUser.DoesNotExist:
+            return Response({'detail': 'Usuário inválido'}, status=404)
+            
+        # Verifica se o 2FA está ativo
+        if not user.is_two_factor_enabled:
+            return Response({'detail': '2FA não configurado'}, status=400)
+            
+        # Verifica o TOTP
+        if not TwoFactorService.verify_token(user.two_factor_secret, str(code)):
+            return Response({'detail': 'Código inválido'}, status=status.HTTP_401_UNAUTHORIZED)
+            
+        # Sucesso! Gera os tokens reais
+        refresh = RefreshToken.for_user(user)
+        access_token = refresh.access_token
+        access_token['role'] = getattr(user, 'role', 'admin')
+        access_token['username'] = user.username
+        
+        return Response({
+            'access': str(access_token),
+            'refresh': str(refresh),
+            'user': UserSerializer(user).data
+        })
+
+class Setup2FAView(APIView):
+    """View para configurar 2FA"""
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def post(self, request):
+        user = request.user
+        
+        if user.is_two_factor_enabled:
+            return Response({'detail': '2FA já está ativo para este usuário'}, status=400)
+            
+        # Gera secret novo cada vez que pede configuração (se não estiver ativado)
+        secret = TwoFactorService.generate_secret()
+        user.two_factor_secret = secret
+        user.save(update_fields=['two_factor_secret'])
+        
+        uri = TwoFactorService.get_totp_uri(secret, user.username)
+        qr_base64 = TwoFactorService.generate_qr_code_base64(uri)
+        
+        return Response({
+            'qr_code': qr_base64,
+            'secret': secret
+        })
+
+class VerifySetup2FAView(APIView):
+    """View para confirmar a configuração do 2FA"""
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def post(self, request):
+        user = request.user
+        code = request.data.get('code')
+        
+        if not code:
+            return Response({'detail': 'Código é obrigatório'}, status=400)
+            
+        if user.is_two_factor_enabled:
+            return Response({'detail': '2FA já configurado'}, status=400)
+            
+        if not user.two_factor_secret:
+            return Response({'detail': 'Inicie a configuração do 2FA primeiro'}, status=400)
+            
+        if not TwoFactorService.verify_token(user.two_factor_secret, str(code)):
+            return Response({'detail': 'Código inválido'}, status=400)
+            
+        # Sucesso
+        user.is_two_factor_enabled = True
+        user.save(update_fields=['is_two_factor_enabled'])
+        
+        return Response({'detail': 'Autenticação em Dois Fatores ativada com sucesso!'})
 
 
 class LogoutView(APIView):
@@ -188,3 +282,31 @@ def user_permissions(request):
     
     return Response(permissions_data)
 
+
+class UserRoleUpdateView(APIView):
+    """View para alteração de papel (role) — exclusivo para superadmin"""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def patch(self, request, pk):
+        if request.user.role != 'superadmin':
+            return Response(
+                {'detail': 'Apenas o superadmin pode alterar papéis de usuário.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        new_role = request.data.get('role')
+        valid_roles = [r[0] for r in CustomUser.UserRole.choices]
+        if not new_role or new_role not in valid_roles:
+            return Response(
+                {'detail': f'Papel inválido. Escolha entre: {", ".join(valid_roles)}'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            target_user = CustomUser.objects.get(pk=pk)
+        except CustomUser.DoesNotExist:
+            return Response({'detail': 'Usuário não encontrado.'}, status=status.HTTP_404_NOT_FOUND)
+
+        target_user.role = new_role
+        target_user.save(update_fields=['role'])
+        return Response(UserSerializer(target_user).data)

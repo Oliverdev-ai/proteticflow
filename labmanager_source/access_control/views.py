@@ -10,7 +10,7 @@ from django.db.models import Q, Count, Sum
 from datetime import timedelta
 from .models import (
     SubscriptionPlan, UserRole, UserSubscription, UserProfile,
-    UsageTracking, AccessRestriction
+    UsageTracking, AccessRestriction, RolePermissionsMatrix
 )
 from .serializers import (
     SubscriptionPlanSerializer, UserRoleSerializer, UserSubscriptionSerializer,
@@ -489,3 +489,43 @@ def admin_dashboard_data(request):
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
+
+class RolePermissionsView(APIView):
+    """GET/PATCH da matriz de permissões RBAC (singleton).
+
+    GET  — qualquer autenticado pode ler.
+    PATCH — apenas superadmin pode escrever.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        obj = RolePermissionsMatrix.get_singleton()
+        return Response({
+            'matrix': obj.matrix,
+            'updated_at': obj.updated_at,
+            'updated_by': obj.updated_by_id,
+        })
+
+    def patch(self, request):
+        if request.user.role != 'superadmin':
+            return Response(
+                {'detail': 'Apenas o superadmin pode alterar a matriz de permissões.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        new_matrix = request.data.get('matrix')
+        if not isinstance(new_matrix, dict):
+            return Response(
+                {'detail': '"matrix" deve ser um objeto JSON.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        obj = RolePermissionsMatrix.get_singleton()
+        obj.matrix = new_matrix
+        obj.updated_by = request.user
+        obj.save(update_fields=['matrix', 'updated_by', 'updated_at'])
+
+        return Response({
+            'matrix': obj.matrix,
+            'updated_at': obj.updated_at,
+        })

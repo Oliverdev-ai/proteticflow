@@ -31,6 +31,20 @@ class CustomUser(AbstractUser):
         null=True
     )
     
+    # 2FA Fields
+    two_factor_secret = models.CharField(
+        _('2FA Secret'),
+        max_length=32,
+        blank=True,
+        default='',
+        help_text=_('Chave TOTP secreta gerada pelo pyotp')
+    )
+    is_two_factor_enabled = models.BooleanField(
+        _('2FA Ativado'),
+        default=False,
+        help_text=_('Verdadeiro se o usuário escaneou o QR e validou o primeiro token')
+    )
+    
     created_at = models.DateTimeField(_('Criado em'), auto_now_add=True)
     updated_at = models.DateTimeField(_('Atualizado em'), auto_now=True)
     

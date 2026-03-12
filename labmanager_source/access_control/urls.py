@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from .views import RolePermissionsView
 
 app_name = 'access_control'
 
@@ -29,5 +30,6 @@ urlpatterns = [
     # Administração
     path('update-user-limits/<int:user_id>/', views.UserLimitsUpdateView.as_view(), name='update-user-limits'),
     path('admin-dashboard/', views.admin_dashboard_data, name='admin-dashboard'),
+    path('permissions/', RolePermissionsView.as_view(), name='role-permissions'),
 ]
 
