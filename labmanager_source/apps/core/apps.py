@@ -21,6 +21,7 @@ class CoreConfig(AppConfig):
         from apps.jobs.models import Job, JobItem
         from apps.clients.models import Client
         from apps.financial.models import AccountsReceivable, AccountsPayable
+        from apps.materials.models import Supplier, Material, StockMovement, PurchaseOrder
 
         # Registrar modelos críticos na Trilha de Auditoria (LGPD)
         auditlog.register(CustomUser)
@@ -30,4 +31,8 @@ class CoreConfig(AppConfig):
         auditlog.register(Client)
         auditlog.register(AccountsReceivable)
         auditlog.register(AccountsPayable)
+        auditlog.register(Supplier)
+        auditlog.register(Material)
+        auditlog.register(StockMovement)
+        auditlog.register(PurchaseOrder)
 

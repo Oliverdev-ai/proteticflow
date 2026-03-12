@@ -9,7 +9,7 @@ from django.utils.decorators import method_decorator
 from .models import CustomUser
 from .serializers import (
     UserSerializer, UserCreateSerializer, UserUpdateSerializer,
-    CollaboratorCreateSerializer, LoginSerializer, PasswordChangeSerializer
+    LoginSerializer, PasswordChangeSerializer
 )
 from .services.two_factor import TwoFactorService
 
@@ -190,21 +190,6 @@ class UserListCreateView(generics.ListCreateAPIView):
         if not (self.request.user.is_admin() or self.request.user.is_superuser):
             raise permissions.PermissionDenied(
                 'Apenas administradores podem criar usuários.'
-            )
-        
-        serializer.save()
-
-
-class CollaboratorCreateView(generics.CreateAPIView):
-    """View específica para criação de colaboradores"""
-    serializer_class = CollaboratorCreateSerializer
-    permission_classes = [permissions.IsAuthenticated]
-    
-    def perform_create(self, serializer):
-        # Apenas admins podem criar colaboradores
-        if not (self.request.user.is_admin() or self.request.user.is_superuser):
-            raise permissions.PermissionDenied(
-                'Apenas administradores podem criar colaboradores.'
             )
         
         serializer.save()

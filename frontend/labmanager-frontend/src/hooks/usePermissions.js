@@ -28,8 +28,8 @@ const usePermissions = () => {
      * @returns {boolean} - true se tiver permissão, false caso contrário.
      */
     const can = (module) => {
-        // Obter o role do user ou do fallback permissions
-        const role = user?.role || user?.user_type || authPerms?.role;
+        // Obter o role do user diretamente
+        const role = user?.role;
         if (!role) return false;
 
         // Resgata o array de permissões do papel. Se não existir, retorna array vazio
@@ -42,7 +42,7 @@ const usePermissions = () => {
      * Retorna o array bruto de permissões atrelado à sessão atual
      */
     const getMyPermissions = () => {
-        const role = user?.role || user?.user_type || authPerms?.role;
+        const role = user?.role;
         if (!role) return [];
         return ROLE_PERMISSIONS[role] || [];
     };
@@ -51,8 +51,7 @@ const usePermissions = () => {
         can,
         getMyPermissions,
         isSuperAdmin: () => {
-            const role = user?.role || user?.user_type || authPerms?.role;
-            return role === 'superadmin';
+            return user?.role === 'superadmin';
         },
         isLoading
     };

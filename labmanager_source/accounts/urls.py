@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import (
     LoginView, LogoutView, UserProfileView, UserListCreateView,
-    CollaboratorCreateView, UserDetailView, PasswordChangeView,
+    UserDetailView, PasswordChangeView,
     user_permissions, VerifyLogin2FAView, Setup2FAView, VerifySetup2FAView,
     UserRoleUpdateView
 )
@@ -28,7 +28,5 @@ urlpatterns = [
     path('users/<int:pk>/', UserDetailView.as_view(), name='user-detail'),
     path('users/<int:pk>/role/', UserRoleUpdateView.as_view(), name='user-role-update'),
     
-    # Criação específica de colaboradores
-    path('collaborators/', CollaboratorCreateView.as_view(), name='collaborator-create'),
 ]
 

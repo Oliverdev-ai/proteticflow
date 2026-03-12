@@ -111,6 +111,12 @@ export default function AuthorizationsTab() {
                         <CardTitle className="text-2xl font-bold text-gray-800 flex items-center">
                             <Shield className="h-6 w-6 mr-3 text-blue-600" />
                             Matriz de Autorizações
+                            {!canEdit && (
+                                <span className="ml-3 px-2 py-0.5 bg-amber-100 text-amber-700 text-xs font-semibold rounded-full border border-amber-200 flex items-center">
+                                    <Lock className="h-3 w-3 mr-1" />
+                                    Edição restrita a SuperAdmin
+                                </span>
+                            )}
                         </CardTitle>
                         <CardDescription className="text-gray-600 mt-1">
                             Configure quais perfis podem acessar cada módulo do sistema

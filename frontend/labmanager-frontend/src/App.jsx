@@ -13,7 +13,6 @@ import DeliverySchedulePage from './pages/DeliverySchedulePage';
 import FinancialClosingPage from './pages/FinancialClosingPage';
 import LabSettingsPage from './pages/LabSettingsPage';
 import PlansPage from './pages/PlansPage';
-import CollaboratorManagementPage from './pages/CollaboratorManagementPage';
 import PrivateRoute from './components/layout/PrivateRoute';
 import AIAssistant from './components/ai/AIAssistant';
 import { Toaster } from './components/ui/toaster';
@@ -58,7 +57,6 @@ function AppContent() {
           <Route path="financial-closing" element={<PrivateRoute module="financial"><FinancialClosingPage /></PrivateRoute>} />
           <Route path="lab-settings" element={<PrivateRoute module="auth_settings"><LabSettingsPage /></PrivateRoute>} />
           <Route path="plans" element={<PrivateRoute module="auth_settings"><PlansPage /></PrivateRoute>} />
-          <Route path="collaborators" element={<PrivateRoute module="employees"><CollaboratorManagementPage /></PrivateRoute>} />
         </Route>
 
         {/* Redirecionar para login se não estiver autenticado */}

@@ -24,6 +24,9 @@ export const AuthProvider = ({ children }) => {
     try {
       if (authService.isAuthenticated()) {
         const userData = authService.getCurrentUser();
+        if (userData && !userData.role) {
+          console.warn('[AuthContext] role ausente no user_data:', userData);
+        }
         setUser(userData);
         
         // Busca permissões do usuário
@@ -41,6 +44,9 @@ export const AuthProvider = ({ children }) => {
   const login = async (credentials) => {
     try {
       const response = await authService.login(credentials);
+      if (response.user && !response.user.role) {
+        console.warn('[AuthContext] role ausente no login:', response.user);
+      }
       setUser(response.user);
       
       // Busca permissões após login
@@ -89,6 +95,7 @@ export const AuthProvider = ({ children }) => {
 
   const value = {
     user,
+    role: user?.role,
     permissions,
     isLoading,
     login,

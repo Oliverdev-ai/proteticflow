@@ -62,20 +62,6 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
 
 
-class CollaboratorCreateSerializer(UserCreateSerializer):
-    """Serializer específico para criação de colaboradores"""
-    
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Remove o campo role para colaboradores
-        self.fields.pop('role', None)
-    
-    def create(self, validated_data):
-        # Força o tipo como producao
-        validated_data['role'] = CustomUser.UserRole.PRODUCAO
-        return super().create(validated_data)
-
-
 class LoginSerializer(serializers.Serializer):
     """Serializer para autenticação de usuários"""
     
