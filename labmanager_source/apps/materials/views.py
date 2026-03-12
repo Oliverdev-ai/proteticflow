@@ -30,7 +30,7 @@ from .serializers import (
 )
 from .filters import MaterialFilter, StockMovementFilter, PurchaseOrderFilter
 from .xml_parser import parse_nfe_xml
-from core.utils.errors import error_response, log_and_response
+from apps.core.utils.errors import error_response, log_and_response
 
 
 class SupplierViewSet(viewsets.ModelViewSet):

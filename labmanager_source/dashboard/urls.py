@@ -4,5 +4,5 @@ from . import views
 app_name = 'dashboard'
 
 urlpatterns = [
-    # Add your dashboard API endpoints here
+    path('summary/', views.summary, name='dashboard-summary'),
 ]
