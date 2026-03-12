@@ -8,7 +8,7 @@ import usePermissions from '../../hooks/usePermissions';
  * @param {React.ReactNode} props.children O componente renderizado caso tenha acesso.
  * @param {string} props.module O módulo a ser verificado no usePermissions().
  */
-export default function PrivateRoute({ children, module }) {
+export default function PrivateRoute({ children, module, modules }) {
     const { can, isLoading } = usePermissions();
 
     if (isLoading) {
@@ -20,7 +20,8 @@ export default function PrivateRoute({ children, module }) {
     }
 
     // Se exigir um módulo e o usuário não tiver permissão para ele, barrar
-    if (module && !can(module)) {
+    const moduleList = modules || (module ? [module] : []);
+    if (moduleList.length > 0 && !moduleList.some((item) => can(item))) {
         return (
             <div className="flex flex-col items-center justify-center p-12 text-center h-full">
                 <div className="text-red-500 mb-4">

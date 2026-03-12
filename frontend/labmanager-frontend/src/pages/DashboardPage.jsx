@@ -52,7 +52,8 @@ export default function DashboardPage() {
     setLoading(true);
     try {
       const token = localStorage.getItem('access_token');
-      const response = await axios.get(`${API_URL}/dashboard/summary/`, {
+      const baseUrl = API_URL.endsWith('/api/v1') ? API_URL : `${API_URL}/api/v1`;
+      const response = await axios.get(`${baseUrl}/dashboard/summary/`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setDashboardData(response.data);
