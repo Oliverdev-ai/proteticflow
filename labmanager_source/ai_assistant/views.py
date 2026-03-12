@@ -2,6 +2,7 @@ import uuid
 import json
 from django.utils import timezone
 from rest_framework import generics, status, permissions
+from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -70,6 +71,8 @@ class ChatView(APIView):
     """View principal para interação com o chat"""
     
     permission_classes = [permissions.IsAuthenticated]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'ai_chat'
     
     def post(self, request):
         """Processa uma mensagem de chat"""

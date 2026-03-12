@@ -1,4 +1,5 @@
 from rest_framework import generics, status, permissions
+from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -17,6 +18,8 @@ from .services.two_factor import TwoFactorService
 class LoginView(APIView):
     """View para autenticação de usuários"""
     permission_classes = [permissions.AllowAny]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'login'
     
     def post(self, request):
         serializer = LoginSerializer(data=request.data, context={'request': request})
