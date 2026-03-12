@@ -129,7 +129,7 @@ class CommandProcessor:
         # Verifica cada comando
         for command_key, command_info in self.commands.items():
             # Verifica permissões
-            if command_info['admin_only'] and not self.user.user_type == 'admin':
+            if command_info['admin_only'] and not (self.user.is_gerente() or self.user.is_superadmin()):
                 continue
                 
             # Verifica padrões
@@ -161,7 +161,7 @@ class CommandProcessor:
         """Retorna lista de comandos disponíveis para o usuário"""
         available = []
         for command_key, command_info in self.commands.items():
-            if not command_info['admin_only'] or self.user.user_type == 'admin':
+            if not command_info['admin_only'] or self.user.is_gerente() or self.user.is_superadmin():
                 # Pega o primeiro padrão como exemplo
                 pattern = command_info['patterns'][0]
                 # Remove regex e converte para exemplo legível
@@ -655,4 +655,5 @@ class CommandProcessor:
                 'success': False,
                 'message': f'Erro na busca: {str(e)}'
             }
+
 

@@ -45,6 +45,13 @@ class EmployeeViewSet(viewsets.ModelViewSet):
     ordering_fields = ['name', 'hire_date', 'position', 'department']
     ordering = ['name']
 
+    def get_queryset(self):
+        """Apenas funcionários ativos por padrão no list."""
+        qs = super().get_queryset()
+        if self.action == 'list':
+            return qs.filter(is_active=True)
+        return qs
+
     @action(detail=True, methods=['get'])
     def skills(self, request, pk=None):
         """Return skills for a specific employee."""

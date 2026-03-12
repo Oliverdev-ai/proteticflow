@@ -55,8 +55,8 @@ class AccountsReceivable(models.Model):
     def save(self, *args, **kwargs):
         # Calculate adjusted amount based on client's price adjustment
         if self.client and self.amount:
-            adjustment = self.client.price_adjustment_percentage / 100
-            self.adjusted_amount = self.amount * (1 + adjustment)
+            adjustment = Decimal(str(self.client.price_adjustment_percentage)) / Decimal('100')
+            self.adjusted_amount = self.amount * (Decimal('1') + adjustment)
         super().save(*args, **kwargs)
     
     def __str__(self):

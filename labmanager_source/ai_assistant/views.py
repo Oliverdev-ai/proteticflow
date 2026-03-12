@@ -97,9 +97,9 @@ class ChatView(APIView):
         
         # Prepara resposta
         if result['success']:
-            response_text = self._format_success_response(result)
+            response_text = result.get('message') or self._format_success_response(result)
             command_executed = result.get('command')
-            execution_result = result.get('result')
+            execution_result = result.get('data') if 'data' in result else result.get('result')
         else:
             response_text = result['message']
             command_executed = None
@@ -169,7 +169,9 @@ class ChatView(APIView):
     
     def _format_success_response(self, result):
         """Formata resposta de sucesso"""
-        command_result = result.get('result', {})
+        command_result = result.get('result')
+        if command_result is None:
+            command_result = result.get('data', {})
         
         if isinstance(command_result, dict):
             if 'titulo' in command_result:
@@ -355,11 +357,11 @@ def available_commands(request):
     """Endpoint para listar comandos disponíveis para o usuário"""
     
     processor = CommandProcessor(request.user)
-    suggestions = processor._get_command_suggestions()
+    suggestions = processor.get_available_commands()
     
     return Response({
         'available_commands': suggestions,
-        'user_type': getattr(request.user, 'user_type', 'admin'),
+        'user_type': getattr(request.user, 'role', 'admin'),
         'total_commands': len(suggestions)
     })
 
