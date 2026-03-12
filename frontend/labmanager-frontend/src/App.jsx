@@ -11,8 +11,7 @@ import JobsPage from './pages/JobsPage';
 import JobFormPage from './pages/JobFormPage';
 import DeliverySchedulePage from './pages/DeliverySchedulePage';
 import FinancialClosingPage from './pages/FinancialClosingPage';
-import LabSettingsPage from './pages/LabSettingsPage';
-import PlansPage from './pages/PlansPage';
+import SettingsPage from './pages/SettingsPage';
 import PrivateRoute from './components/layout/PrivateRoute';
 import AIAssistant from './components/ai/AIAssistant';
 import { Toaster } from './components/ui/toaster';
@@ -55,8 +54,7 @@ function AppContent() {
           <Route path="jobs/:id/edit" element={<PrivateRoute module="jobs"><JobFormPage /></PrivateRoute>} />
           <Route path="delivery-schedule" element={<PrivateRoute module="jobs"><DeliverySchedulePage /></PrivateRoute>} />
           <Route path="financial-closing" element={<PrivateRoute module="financial"><FinancialClosingPage /></PrivateRoute>} />
-          <Route path="lab-settings" element={<PrivateRoute module="auth_settings"><LabSettingsPage /></PrivateRoute>} />
-          <Route path="plans" element={<PrivateRoute module="auth_settings"><PlansPage /></PrivateRoute>} />
+          <Route path="settings" element={<SettingsPage />} />
         </Route>
 
         {/* Redirecionar para login se não estiver autenticado */}

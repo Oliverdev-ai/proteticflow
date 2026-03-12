@@ -184,7 +184,6 @@ class UserListCreateView(generics.ListCreateAPIView):
         
         # Colaboradores só veem a si mesmos
         return CustomUser.objects.filter(id=user.id)
-    
     def perform_create(self, serializer):
         # Apenas admins podem criar usuários
         if not (self.request.user.is_admin() or self.request.user.is_superuser):
@@ -192,6 +191,20 @@ class UserListCreateView(generics.ListCreateAPIView):
                 'Apenas administradores podem criar usuários.'
             )
         
+        serializer.save()
+
+
+class UserAuthCreateView(generics.CreateAPIView):
+    """View dedicada para criação de usuários (Roadmap v2.0)"""
+    serializer_class = UserCreateSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        # Apenas superadmin ou gerentes podem criar novos usuários
+        if not (self.request.user.role == 'superadmin' or self.request.user.role == 'gerente'):
+            raise permissions.PermissionDenied(
+                'Apenas superadmins ou gerentes podem criar novos usuários.'
+            )
         serializer.save()
 
 

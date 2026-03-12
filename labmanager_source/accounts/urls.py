@@ -3,7 +3,7 @@ from .views import (
     LoginView, LogoutView, UserProfileView, UserListCreateView,
     UserDetailView, PasswordChangeView,
     user_permissions, VerifyLogin2FAView, Setup2FAView, VerifySetup2FAView,
-    UserRoleUpdateView
+    UserRoleUpdateView, UserAuthCreateView
 )
 
 app_name = 'accounts'
@@ -13,6 +13,7 @@ urlpatterns = [
     path('auth/login/', LoginView.as_view(), name='login'),
     path('auth/login/2fa/', VerifyLogin2FAView.as_view(), name='login-2fa'),
     path('auth/logout/', LogoutView.as_view(), name='logout'),
+    path('auth/users/', UserAuthCreateView.as_view(), name='auth-user-create'),
     
     # 2FA Management
     path('auth/2fa/setup/', Setup2FAView.as_view(), name='setup-2fa'),

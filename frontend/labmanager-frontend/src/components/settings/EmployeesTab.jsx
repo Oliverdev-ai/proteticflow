@@ -170,7 +170,7 @@ export default function EmployeesTab() {
                 const tempPassword = form.password || `Lab@${Math.random().toString(36).slice(2, 10)}#1`;
 
                 const userRes = await axios.post(
-                    `${API_URL}/api/auth/users/`,
+                    `${API_URL}/api/v1/auth/users/`,
                     {
                         username:         form.username || form.document_number,
                         email:            form.email,
@@ -225,7 +225,7 @@ export default function EmployeesTab() {
             const userId = emp.user?.id;
             if (userId) {
                 await axios.patch(
-                    `${API_URL}/api/auth/users/${userId}/`,
+                    `${API_URL}/api/v1/auth/users/${userId}/`,
                     { is_active: false },
                     authHeader()
                 );
@@ -258,7 +258,7 @@ export default function EmployeesTab() {
         setSavingRole(true);
         try {
             await axios.patch(
-                `${API_URL}/api/auth/users/${roleModal.userId}/role/`,
+                `${API_URL}/api/v1/auth/users/${roleModal.userId}/role/`,
                 { role: newRole },
                 authHeader()
             );

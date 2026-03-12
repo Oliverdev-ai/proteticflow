@@ -49,9 +49,11 @@ describe('Testes de Permissão de Interface (RBAC)', () => {
         cy.get('nav, aside').contains('Financeiro').should('not.exist');
         cy.get('nav, aside').contains('Configurações').should('not.exist');
 
-        // Tentar acessar manualmente via URL as configurações: block de PrivateRoute
+        // Tentar acessar manualmente via URL as configurações: agora permitido (BUG-B)
         cy.visit('/settings');
-        cy.contains('Acesso Negado').should('be.visible');
+        cy.contains('Meu Perfil').should('be.visible');
+        cy.contains('Funcionários').should('not.exist');
+        cy.contains('Autorizações').should('not.exist');
     });
 
     it('2. GERENTE: Visualiza Finanças, Clientes mas falha no acesso avançado', () => {

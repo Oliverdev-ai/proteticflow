@@ -31,7 +31,7 @@ export default function MyProfileTab() {
         try {
             setIsLoading(true);
             const token = localStorage.getItem('access_token');
-            const response = await axios.post(`${API_URL}/auth/2fa/setup/`, {}, {
+            const response = await axios.post(`${API_URL}/api/v1/auth/2fa/setup/`, {}, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setQrCode(response.data.qr_code);
@@ -55,7 +55,7 @@ export default function MyProfileTab() {
         try {
             setIsLoading(true);
             const token = localStorage.getItem('access_token');
-            await axios.post(`${API_URL}/auth/2fa/verify-setup/`, { code: setupCode }, {
+            await axios.post(`${API_URL}/api/v1/auth/2fa/verify-setup/`, { code: setupCode }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
