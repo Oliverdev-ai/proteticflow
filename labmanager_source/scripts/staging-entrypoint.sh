@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/bin/sh
 
-# ProteticFlow - Script de Inicialização para Staging
+# ProteticFlow - Script de InicializaÃƒÂ§ÃƒÂ£o para Staging
 # Este script configura o ambiente de staging com dados de teste
 
 set -e
@@ -29,34 +29,34 @@ error() {
     exit 1
 }
 
-log "Iniciando configuração do ambiente de staging..."
+log "Iniciando configuraÃƒÂ§ÃƒÂ£o do ambiente de staging..."
 
-# Aguardar banco de dados ficar disponível
+# Aguardar banco de dados ficar disponÃƒÂ­vel
 log "Aguardando banco de dados..."
 while ! pg_isready -h $DB_HOST -p $DB_PORT -U $DB_USER; do
     sleep 2
 done
-success "Banco de dados disponível"
+success "Banco de dados disponÃƒÂ­vel"
 
-# Aguardar Redis ficar disponível
+# Aguardar Redis ficar disponÃƒÂ­vel
 log "Aguardando Redis..."
 while ! redis-cli -h redis -p 6379 -a $REDIS_PASSWORD ping > /dev/null 2>&1; do
     sleep 2
 done
-success "Redis disponível"
+success "Redis disponÃƒÂ­vel"
 
-# Executar migrações
-log "Executando migrações do banco de dados..."
+# Executar migraÃƒÂ§ÃƒÂµes
+log "Executando migraÃƒÂ§ÃƒÂµes do banco de dados..."
 python manage.py migrate --noinput
-success "Migrações executadas"
+success "MigraÃƒÂ§ÃƒÂµes executadas"
 
-# Coletar arquivos estáticos
-log "Coletando arquivos estáticos..."
+# Coletar arquivos estÃƒÂ¡ticos
+log "Coletando arquivos estÃƒÂ¡ticos..."
 python manage.py collectstatic --noinput
-success "Arquivos estáticos coletados"
+success "Arquivos estÃƒÂ¡ticos coletados"
 
-# Criar superusuário de teste se não existir
-log "Configurando usuário administrador de teste..."
+# Criar superusuÃƒÂ¡rio de teste se nÃƒÂ£o existir
+log "Configurando usuÃƒÂ¡rio administrador de teste..."
 python manage.py shell -c "
 from django.contrib.auth import get_user_model
 User = get_user_model()
@@ -68,13 +68,13 @@ if not User.objects.filter(username='admin').exists():
         first_name='Admin',
         last_name='Staging'
     )
-    print('Superusuário criado: admin/staging123')
+    print('SuperusuÃƒÂ¡rio criado: admin/staging123')
 else:
-    print('Superusuário já existe')
+    print('SuperusuÃƒÂ¡rio jÃƒÂ¡ existe')
 "
 
-# Criar usuários de teste
-log "Criando usuários de teste..."
+# Criar usuÃƒÂ¡rios de teste
+log "Criando usuÃƒÂ¡rios de teste..."
 python manage.py shell -c "
 from django.contrib.auth import get_user_model
 from apps.employees.models import Employee
@@ -82,9 +82,9 @@ import random
 
 User = get_user_model()
 
-# Usuários de teste
+# UsuÃƒÂ¡rios de teste
 test_users = [
-    {'username': 'dentista1', 'email': 'dentista1@test.com', 'password': 'test123', 'first_name': 'Dr. João', 'last_name': 'Silva'},
+    {'username': 'dentista1', 'email': 'dentista1@test.com', 'password': 'test123', 'first_name': 'Dr. JoÃƒÂ£o', 'last_name': 'Silva'},
     {'username': 'dentista2', 'email': 'dentista2@test.com', 'password': 'test123', 'first_name': 'Dra. Maria', 'last_name': 'Santos'},
     {'username': 'tecnico1', 'email': 'tecnico1@test.com', 'password': 'test123', 'first_name': 'Carlos', 'last_name': 'Oliveira'},
     {'username': 'tecnico2', 'email': 'tecnico2@test.com', 'password': 'test123', 'first_name': 'Ana', 'last_name': 'Costa'},
@@ -93,9 +93,9 @@ test_users = [
 for user_data in test_users:
     if not User.objects.filter(username=user_data['username']).exists():
         user = User.objects.create_user(**user_data)
-        print(f'Usuário criado: {user.username}')
+        print(f'UsuÃƒÂ¡rio criado: {user.username}')
     else:
-        print(f'Usuário já existe: {user_data[\"username\"]}')
+        print(f'UsuÃƒÂ¡rio jÃƒÂ¡ existe: {user_data[\"username\"]}')
 "
 
 # Popular dados de teste se habilitado
@@ -107,9 +107,9 @@ if [ "$POPULATE_TEST_DATA" = "True" ]; then
         python manage.py loaddata /app/fixtures/test_data.json
         success "Dados de teste carregados"
     else
-        warning "Fixture de dados de teste não encontrada, criando dados básicos..."
+        warning "Fixture de dados de teste nÃƒÂ£o encontrada, criando dados bÃƒÂ¡sicos..."
         
-        # Criar dados básicos via shell
+        # Criar dados bÃƒÂ¡sicos via shell
         python manage.py shell -c "
 from apps.clients.models import Client
 from apps.jobs.models import Job
@@ -120,10 +120,10 @@ from datetime import datetime, timedelta
 
 # Criar clientes de teste
 clients_data = [
-    {'name': 'Clínica Dental Smile', 'email': 'contato@dentalsmile.com', 'phone': '(11) 99999-1111'},
+    {'name': 'ClÃƒÂ­nica Dental Smile', 'email': 'contato@dentalsmile.com', 'phone': '(11) 99999-1111'},
     {'name': 'Odontologia Moderna', 'email': 'info@odontomoderna.com', 'phone': '(11) 99999-2222'},
-    {'name': 'Centro Odontológico São Paulo', 'email': 'atendimento@centrosp.com', 'phone': '(11) 99999-3333'},
-    {'name': 'Clínica Dr. Silva', 'email': 'drsilva@clinica.com', 'phone': '(11) 99999-4444'},
+    {'name': 'Centro OdontolÃƒÂ³gico SÃƒÂ£o Paulo', 'email': 'atendimento@centrosp.com', 'phone': '(11) 99999-3333'},
+    {'name': 'ClÃƒÂ­nica Dr. Silva', 'email': 'drsilva@clinica.com', 'phone': '(11) 99999-4444'},
     {'name': 'Dental Care Premium', 'email': 'premium@dentalcare.com', 'phone': '(11) 99999-5555'},
 ]
 
@@ -134,10 +134,10 @@ for client_data in clients_data:
 
 # Criar materiais de teste
 materials_data = [
-    {'name': 'Resina Acrílica', 'description': 'Resina para próteses', 'unit_price': 25.50},
+    {'name': 'Resina AcrÃƒÂ­lica', 'description': 'Resina para prÃƒÂ³teses', 'unit_price': 25.50},
     {'name': 'Dente Artificial', 'description': 'Dente de porcelana', 'unit_price': 15.00},
-    {'name': 'Liga Metálica', 'description': 'Liga para estruturas', 'unit_price': 45.00},
-    {'name': 'Cerâmica Dental', 'description': 'Cerâmica para coroas', 'unit_price': 35.00},
+    {'name': 'Liga MetÃƒÂ¡lica', 'description': 'Liga para estruturas', 'unit_price': 45.00},
+    {'name': 'CerÃƒÂ¢mica Dental', 'description': 'CerÃƒÂ¢mica para coroas', 'unit_price': 35.00},
     {'name': 'Silicone de Moldagem', 'description': 'Silicone para moldes', 'unit_price': 12.00},
 ]
 
@@ -146,7 +146,7 @@ for material_data in materials_data:
         Material.objects.create(**material_data)
         print(f'Material criado: {material_data[\"name\"]}')
 
-print('Dados básicos de teste criados')
+print('Dados bÃƒÂ¡sicos de teste criados')
 "
     fi
 fi
@@ -176,18 +176,18 @@ task, created = PeriodicTask.objects.get_or_create(
 print('Tarefas agendadas configuradas')
 "
 
-# Executar verificações de saúde
-log "Executando verificações de saúde..."
+# Executar verificaÃƒÂ§ÃƒÂµes de saÃƒÂºde
+log "Executando verificaÃƒÂ§ÃƒÂµes de saÃƒÂºde..."
 python manage.py check --deploy
-success "Verificações de saúde concluídas"
+success "VerificaÃƒÂ§ÃƒÂµes de saÃƒÂºde concluÃƒÂ­das"
 
-# Gerar relatório de configuração
-log "Gerando relatório de configuração..."
+# Gerar relatÃƒÂ³rio de configuraÃƒÂ§ÃƒÂ£o
+log "Gerando relatÃƒÂ³rio de configuraÃƒÂ§ÃƒÂ£o..."
 python manage.py shell -c "
 import os
 from django.conf import settings
 
-print('=== RELATÓRIO DE CONFIGURAÇÃO STAGING ===')
+print('=== RELATÃƒâ€œRIO DE CONFIGURAÃƒâ€¡ÃƒÆ’O STAGING ===')
 print(f'Environment: {os.getenv(\"ENVIRONMENT\", \"unknown\")}')
 print(f'Debug: {settings.DEBUG}')
 print(f'Database: {settings.DATABASES[\"default\"][\"NAME\"]}')

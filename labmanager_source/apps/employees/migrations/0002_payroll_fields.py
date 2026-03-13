@@ -17,59 +17,21 @@ def add_columns_if_missing(apps, schema_editor):
     from django.db import connection
 
     new_columns = [
-        "ALTER TABLE employees_employeeprofile ADD COLUMN rg VARCHAR(20) NOT NULL DEFAULT ''",
-        "ALTER TABLE employees_employeeprofile ADD COLUMN employee_type VARCHAR(20) NOT NULL DEFAULT ''",
-        "ALTER TABLE employees_employeeprofile ADD COLUMN contract_type VARCHAR(20) NOT NULL DEFAULT ''",
-        "ALTER TABLE employees_employeeprofile ADD COLUMN base_salary DECIMAL(10,2) NOT NULL DEFAULT 0",
-        "ALTER TABLE employees_employeeprofile ADD COLUMN transport_allowance DECIMAL(8,2) NOT NULL DEFAULT 0",
-        "ALTER TABLE employees_employeeprofile ADD COLUMN meal_allowance DECIMAL(8,2) NOT NULL DEFAULT 0",
-        "ALTER TABLE employees_employeeprofile ADD COLUMN health_insurance DECIMAL(8,2) NOT NULL DEFAULT 0",
-        # Alter bank_account max_length (20→30): only possible via rename/recreate on SQLite
-        # We handle it as a no-op here — the ORM will accept values up to 20 chars anyway.
+        "ALTER TABLE employees_employeeprofile ADD COLUMN IF NOT EXISTS rg VARCHAR(20) NOT NULL DEFAULT ''",
+        "ALTER TABLE employees_employeeprofile ADD COLUMN IF NOT EXISTS employee_type VARCHAR(20) NOT NULL DEFAULT ''",
+        "ALTER TABLE employees_employeeprofile ADD COLUMN IF NOT EXISTS contract_type VARCHAR(20) NOT NULL DEFAULT ''",
+        "ALTER TABLE employees_employeeprofile ADD COLUMN IF NOT EXISTS base_salary DECIMAL(10,2) NOT NULL DEFAULT 0",
+        "ALTER TABLE employees_employeeprofile ADD COLUMN IF NOT EXISTS transport_allowance DECIMAL(8,2) NOT NULL DEFAULT 0",
+        "ALTER TABLE employees_employeeprofile ADD COLUMN IF NOT EXISTS meal_allowance DECIMAL(8,2) NOT NULL DEFAULT 0",
+        "ALTER TABLE employees_employeeprofile ADD COLUMN IF NOT EXISTS health_insurance DECIMAL(8,2) NOT NULL DEFAULT 0",
     ]
 
     with connection.cursor() as cursor:
-        # First ensure the table exists at all (it may have been fake-applied).
-        # If it already exists, this is a no-op.
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS employees_employeeprofile (
-                id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-                created_at DATETIME NOT NULL,
-                updated_at DATETIME NOT NULL,
-                name VARCHAR(255) NOT NULL,
-                document_number VARCHAR(14) NOT NULL UNIQUE,
-                birth_date DATE NULL,
-                email VARCHAR(254) NULL,
-                phone VARCHAR(20) NOT NULL DEFAULT '',
-                address_street VARCHAR(255) NOT NULL DEFAULT '',
-                address_number VARCHAR(20) NOT NULL DEFAULT '',
-                address_complement VARCHAR(100) NOT NULL DEFAULT '',
-                address_neighborhood VARCHAR(100) NOT NULL DEFAULT '',
-                address_city VARCHAR(100) NOT NULL DEFAULT '',
-                address_state VARCHAR(2) NOT NULL DEFAULT '',
-                address_zip_code VARCHAR(10) NOT NULL DEFAULT '',
-                hire_date DATE NOT NULL,
-                termination_date DATE NULL,
-                position VARCHAR(100) NOT NULL DEFAULT '',
-                department VARCHAR(100) NOT NULL DEFAULT '',
-                commission_percentage DECIMAL(5,2) NOT NULL DEFAULT 0.00,
-                bank_name VARCHAR(100) NOT NULL DEFAULT '',
-                bank_branch VARCHAR(20) NOT NULL DEFAULT '',
-                bank_account VARCHAR(30) NOT NULL DEFAULT '',
-                notes TEXT NOT NULL DEFAULT '',
-                is_active BOOL NOT NULL DEFAULT 1,
-                user_id INTEGER NOT NULL UNIQUE REFERENCES auth_user(id) DEFERRABLE INITIALLY DEFERRED
-            )
-        """)
-
-        # Add new columns — ignore OperationalError if column already exists
         for sql in new_columns:
             try:
                 cursor.execute(sql)
             except Exception:
                 pass  # Column already exists
-
-
 def noop(apps, schema_editor):
     pass
 
