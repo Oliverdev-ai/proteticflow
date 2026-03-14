@@ -237,6 +237,38 @@ export const priceTableService = {
     } catch (error) {
       throw error;
     }
+  },
+  exportCSV: async (id) => {
+    try {
+      const response = await api.get(`/price-tables/${id}/export/`, {
+        responseType: 'blob'
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  importCSV: async (id, file) => {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const response = await api.post(`/price-tables/${id}/import/`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  reajuste: async (id, percentual) => {
+    try {
+      const response = await api.post(`/price-tables/${id}/reajuste/`, { percentual });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
   }
 };
 

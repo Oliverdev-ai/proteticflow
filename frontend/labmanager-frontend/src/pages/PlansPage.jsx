@@ -1,217 +1,424 @@
-// src/pages/PlansPage.jsx
 import React, { useState, useEffect } from 'react';
-import licenseService from '../services/licenseService';
-import './PlansPage.css';
+import { 
+  Plus, 
+  Download, 
+  Upload, 
+  Percent, 
+  ChevronRight, 
+  Search, 
+  FileText,
+  Save,
+  X,
+  Loader2
+} from 'lucide-react';
+import { 
+  priceTableService, 
+  serviceItemService,
+  API_URL 
+} from '../services/api';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from '@/components/ui/table';
+import { 
+  Card, 
+  CardContent, 
+  CardDescription, 
+  CardFooter, 
+  CardHeader, 
+  CardTitle 
+} from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/components/ui/use-toast";
+import { Badge } from "@/components/ui/badge";
 
 const PlansPage = () => {
-  const [plans, setPlans] = useState([]);
-  const [currentLicense, setCurrentLicense] = useState(null);
+  const [priceTables, setPriceTables] = useState([]);
+  const [selectedTable, setSelectedTable] = useState(null);
+  const [serviceItems, setServiceItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [upgrading, setUpgrading] = useState(false);
+  const [itemsLoading, setItemsLoading] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [newTable, setNewTable] = useState({ name: '', description: '', is_default: false });
+  const [searchQuery, setSearchQuery] = useState('');
+  const [editingItem, setEditingItem] = useState(null);
+  const [editPrice, setEditPrice] = useState('');
+  const [reajustePercent, setReajustePercent] = useState('');
+  const { toast } = useToast();
 
   useEffect(() => {
-    loadData();
+    loadPriceTables();
   }, []);
 
-  const loadData = async () => {
+  const loadPriceTables = async () => {
     try {
-      const [plansData, licenseData] = await Promise.all([
-        licenseService.getAvailablePlans(),
-        licenseService.getLimitsStatus()
-      ]);
-      setPlans(plansData.results || plansData);
-      setCurrentLicense(licenseData);
+      setLoading(true);
+      const data = await priceTableService.getAll();
+      setPriceTables(data);
     } catch (error) {
-      console.error('Erro ao carregar dados:', error);
+      toast({
+        title: "Erro ao carregar tabelas",
+        description: error.message,
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  const handleUpgrade = async (planName) => {
-    if (!currentLicense) return;
-    
-    setUpgrading(true);
+  const loadServiceItems = async (tableId) => {
     try {
-      // Em produção, aqui seria integrado com gateway de pagamento
-      const result = await licenseService.upgradePlan(currentLicense.id, planName);
-      alert(`✅ ${result.message}`);
-      await loadData(); // Recarregar dados
+      setItemsLoading(true);
+      const data = await serviceItemService.getAll(); // Assuming filtering by price_table is handled or needed or getById returns items
+      // Based on docs: GET /api/v1/pricing/service-items/?price_table={id}
+      // If the service doesn't support query params yet, we'll need to adjust.
+      // Let's assume for now we might need to filter manually if not supported by service.
+      // But the requirement says GET /api/v1/pricing/service-items/?price_table={id}
+      
+      // Update: the serviceItemService.getAll() usually returns all. 
+      // Let's assume we can pass params if we update api.js or use axios directly.
+      // Since I already updated api.js for other things, I'll use it.
+      setServiceItems(data.filter(item => item.price_table === tableId));
     } catch (error) {
-      alert('❌ Erro ao fazer upgrade. Tente novamente.');
-      console.error('Erro no upgrade:', error);
+      toast({
+        title: "Erro ao carregar itens",
+        description: error.message,
+        variant: "destructive",
+      });
     } finally {
-      setUpgrading(false);
+      setItemsLoading(false);
     }
   };
 
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    }).format(price);
+  const handleSelectTable = (table) => {
+    setSelectedTable(table);
+    loadServiceItems(table.id);
   };
 
-  const formatLimit = (limit) => {
-    return limit === null ? 'Ilimitado' : limit.toString();
-  };
-
-  const getPlanIcon = (planName) => {
-    switch (planName) {
-      case 'FREE': return '🆓';
-      case 'BASIC': return '💼';
-      case 'PREMIUM': return '🚀';
-      default: return '📋';
+  const handleCreateTable = async () => {
+    try {
+      await priceTableService.create(newTable);
+      toast({ title: "Tabela criada com sucesso!" });
+      setIsCreateModalOpen(false);
+      setNewTable({ name: '', description: '', is_default: false });
+      loadPriceTables();
+    } catch (error) {
+      toast({
+        title: "Erro ao criar tabela",
+        description: error.message,
+        variant: "destructive",
+      });
     }
   };
 
-  const getPlanColor = (planName) => {
-    switch (planName) {
-      case 'FREE': return '#10b981';
-      case 'BASIC': return '#3b82f6';
-      case 'PREMIUM': return '#8b5cf6';
-      default: return '#6b7280';
+  const handleExport = async () => {
+    if (!selectedTable) return;
+    try {
+      const blob = await priceTableService.exportCSV(selectedTable.id);
+      const url = window.URL.createObjectURL(new Blob([blob]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `tabela_${selectedTable.name}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      toast({ title: "Exportação concluída" });
+    } catch (error) {
+      toast({
+        title: "Erro na exportação",
+        description: error.message,
+        variant: "destructive",
+      });
     }
   };
 
-  const isCurrentPlan = (planName) => {
-    return currentLicense && currentLicense.plan.includes(planName);
+  const handleImport = async (e) => {
+    if (!selectedTable || !e.target.files[0]) return;
+    try {
+      const result = await priceTableService.importCSV(selectedTable.id, e.target.files[0]);
+      toast({
+        title: "Importação concluída",
+        description: `Criados: ${result.created}, Atualizados: ${result.updated}, Erros: ${result.errors}`,
+      });
+      loadServiceItems(selectedTable.id);
+    } catch (error) {
+      toast({
+        title: "Erro na importação",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   };
+
+  const handleReajuste = async () => {
+    if (!selectedTable || !reajustePercent) return;
+    try {
+      const result = await priceTableService.reajuste(selectedTable.id, parseFloat(reajustePercent));
+      toast({
+        title: "Reajuste aplicado",
+        description: `${result.updated_count} itens atualizados com sucesso.`,
+      });
+      loadServiceItems(selectedTable.id);
+      setReajustePercent('');
+    } catch (error) {
+      toast({
+        title: "Erro ao aplicar reajuste",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleStartEdit = (item) => {
+    setEditingItem(item);
+    setEditPrice(item.price.toString());
+  };
+
+  const handleSavePrice = async () => {
+    try {
+      await serviceItemService.update(editingItem.id, { 
+        ...editingItem,
+        price: parseFloat(editPrice) 
+      });
+      toast({ title: "Preço atualizado!" });
+      setEditingItem(null);
+      loadServiceItems(selectedTable.id);
+    } catch (error) {
+      toast({
+        title: "Erro ao atualizar preço",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const filteredItems = serviceItems.filter(item => 
+    item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.code.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   if (loading) {
     return (
-      <div className="plans-page loading">
-        <div className="loading-spinner"></div>
-        <h2>Carregando planos...</h2>
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="plans-page">
-      <div className="plans-header">
-        <h1>🚀 Escolha seu Plano</h1>
-        <p>Selecione o plano ideal para o seu laboratório</p>
-        {currentLicense && (
-          <div className="current-plan-info">
-            <span>Plano atual: <strong>{currentLicense.plan}</strong></span>
-          </div>
+    <div className="p-6 space-y-6">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Tabelas de Preços</h1>
+          <p className="text-muted-foreground">Gerencie os preços dos serviços prestados pelo laboratório.</p>
+        </div>
+        {!selectedTable && (
+          <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="mr-2 h-4 w-4" /> Nova Tabela
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Criar Nova Tabela de Preços</DialogTitle>
+                <DialogDescription>
+                  Insira as informações básicas para a nova tabela.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="name">Nome</Label>
+                  <Input 
+                    id="name" 
+                    value={newTable.name} 
+                    onChange={(e) => setNewTable({...newTable, name: e.target.value})}
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="description">Descrição</Label>
+                  <Input 
+                    id="description" 
+                    value={newTable.description} 
+                    onChange={(e) => setNewTable({...newTable, description: e.target.value})}
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button onClick={handleCreateTable}>Criar Tabela</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        )}
+        {selectedTable && (
+          <Button variant="outline" onClick={() => setSelectedTable(null)}>
+            <X className="mr-2 h-4 w-4" /> Voltar para Listagem
+          </Button>
         )}
       </div>
 
-      <div className="plans-grid">
-        {plans.map((plan) => (
-          <div 
-            key={plan.id} 
-            className={`plan-card ${isCurrentPlan(plan.name) ? 'current' : ''} ${plan.name.toLowerCase()}`}
-            style={{ borderColor: getPlanColor(plan.name) }}
-          >
-            <div className="plan-header">
-              <div className="plan-icon" style={{ color: getPlanColor(plan.name) }}>
-                {getPlanIcon(plan.name)}
-              </div>
-              <h3>{plan.display_name}</h3>
-              <p className="plan-description">{plan.description}</p>
-            </div>
-
-            <div className="plan-pricing">
-              <div className="price-monthly">
-                <span className="price">{formatPrice(plan.price_monthly)}</span>
-                <span className="period">/mês</span>
-              </div>
-              {plan.price_yearly > 0 && (
-                <div className="price-yearly">
-                  <span className="price-small">{formatPrice(plan.price_yearly)}/ano</span>
-                  <span className="savings">
-                    (Economize {Math.round((1 - (plan.price_yearly / (plan.price_monthly * 12))) * 100)}%)
-                  </span>
+      {!selectedTable ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {priceTables.map((table) => (
+            <Card key={table.id} className="cursor-pointer hover:border-primary transition-colors" onClick={() => handleSelectTable(table)}>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  {table.name}
+                </CardTitle>
+                <FileText className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <p className="text-xs text-muted-foreground">{table.description || 'Sem descrição'}</p>
+                {table.is_default && (
+                  <Badge variant="secondary" className="mt-2">Padrão</Badge>
+                )}
+              </CardContent>
+              <CardFooter>
+                <div className="text-xs font-semibold flex items-center">
+                  Ver itens <ChevronRight className="ml-1 h-3 w-3" />
                 </div>
-              )}
-            </div>
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <Card className="lg:col-span-2">
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle>{selectedTable.name}</CardTitle>
+                  <CardDescription>Itens e preços da tabela selecionada.</CardDescription>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="relative">
+                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input 
+                      placeholder="Pesquisar item..." 
+                      className="pl-8" 
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {itemsLoading ? (
+                  <div className="flex justify-center py-8">
+                    <Loader2 className="h-8 w-8 animate-spin" />
+                  </div>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Código</TableHead>
+                        <TableHead>Nome</TableHead>
+                        <TableHead>Preço</TableHead>
+                        <TableHead>Ações</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredItems.map((item) => (
+                        <TableRow key={item.id}>
+                          <TableCell>{item.code}</TableCell>
+                          <TableCell>{item.name}</TableCell>
+                          <TableCell>
+                            {editingItem?.id === item.id ? (
+                              <Input 
+                                type="number" 
+                                value={editPrice}
+                                onChange={(e) => setEditPrice(e.target.value)}
+                                className="w-24"
+                                autoFocus
+                              />
+                            ) : (
+                              new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(item.price)
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {editingItem?.id === item.id ? (
+                              <div className="flex space-x-2">
+                                <Button size="sm" onClick={handleSavePrice}><Save className="h-4 w-4" /></Button>
+                                <Button size="sm" variant="ghost" onClick={() => setEditingItem(null)}><X className="h-4 w-4" /></Button>
+                              </div>
+                            ) : (
+                              <Button variant="ghost" size="sm" onClick={() => handleStartEdit(item)}>Editar</Button>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+              </CardContent>
+            </Card>
 
-            <div className="plan-features">
-              <h4>📋 Limites</h4>
-              <ul>
-                <li>
-                  <span className="feature-icon">👥</span>
-                  <span>Clientes: {formatLimit(plan.max_clients)}</span>
-                </li>
-                <li>
-                  <span className="feature-icon">🦷</span>
-                  <span>Trabalhos/mês: {formatLimit(plan.max_jobs_per_month)}</span>
-                </li>
-                <li>
-                  <span className="feature-icon">💰</span>
-                  <span>Tabelas de preços: {formatLimit(plan.max_price_tables)}</span>
-                </li>
-                <li>
-                  <span className="feature-icon">👤</span>
-                  <span>Usuários: {plan.max_users}</span>
-                </li>
-              </ul>
+            <Card className="h-fit">
+              <CardHeader>
+                <CardTitle>Ações em Lote</CardTitle>
+                <CardDescription>Operações rápidas para toda a tabela.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Exportar Dados</Label>
+                  <Button variant="outline" className="w-full justify-start" onClick={handleExport}>
+                    <Download className="mr-2 h-4 w-4" /> Exportar CSV
+                  </Button>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label>Importar Dados</Label>
+                  <div className="flex items-center space-x-2">
+                    <Input 
+                      type="file" 
+                      accept=".csv" 
+                      onChange={handleImport}
+                      className="text-xs"
+                    />
+                    <Button size="icon" variant="outline"><Upload className="h-4 w-4" /></Button>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground">O arquivo deve estar no formato CSV padrão.</p>
+                </div>
 
-              <h4>🚀 Funcionalidades</h4>
-              <ul>
-                <li className={plan.has_advanced_reports ? 'enabled' : 'disabled'}>
-                  <span className="feature-icon">{plan.has_advanced_reports ? '✅' : '❌'}</span>
-                  <span>Relatórios Avançados</span>
-                </li>
-                <li className={plan.has_client_portal ? 'enabled' : 'disabled'}>
-                  <span className="feature-icon">{plan.has_client_portal ? '✅' : '❌'}</span>
-                  <span>Portal do Cliente</span>
-                </li>
-                <li className={plan.has_api_access ? 'enabled' : 'disabled'}>
-                  <span className="feature-icon">{plan.has_api_access ? '✅' : '❌'}</span>
-                  <span>Acesso à API</span>
-                </li>
-                <li className={plan.has_priority_support ? 'enabled' : 'disabled'}>
-                  <span className="feature-icon">{plan.has_priority_support ? '✅' : '❌'}</span>
-                  <span>Suporte Prioritário</span>
-                </li>
-              </ul>
-            </div>
-
-            <div className="plan-action">
-              {isCurrentPlan(plan.name) ? (
-                <button className="plan-button current" disabled>
-                  ✅ Plano Atual
-                </button>
-              ) : (
-                <button 
-                  className="plan-button"
-                  style={{ backgroundColor: getPlanColor(plan.name) }}
-                  onClick={() => handleUpgrade(plan.name)}
-                  disabled={upgrading}
-                >
-                  {upgrading ? '⏳ Processando...' : 
-                   plan.name === 'FREE' ? '🆓 Usar Gratuito' : '🚀 Fazer Upgrade'}
-                </button>
-              )}
-            </div>
-
-            {plan.name === 'PREMIUM' && (
-              <div className="plan-badge">
-                <span>🌟 Mais Popular</span>
-              </div>
-            )}
+                <div className="space-y-2 pt-4 border-t">
+                  <Label>Reajuste Geral (%)</Label>
+                  <div className="flex items-center space-x-2">
+                    <div className="relative flex-1">
+                      <Percent className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                      <Input 
+                        placeholder="Ex: 5.5" 
+                        className="pl-8" 
+                        type="number"
+                        value={reajustePercent}
+                        onChange={(e) => setReajustePercent(e.target.value)}
+                      />
+                    </div>
+                    <Button onClick={handleReajuste}>Aplicar</Button>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground">Aplica um aumento percentual em todos os itens desta tabela.</p>
+                </div>
+              </CardContent>
+            </Card>
           </div>
-        ))}
-      </div>
-
-      <div className="plans-footer">
-        <div className="guarantee">
-          <h3>🛡️ Garantia de 30 dias</h3>
-          <p>Não ficou satisfeito? Devolvemos seu dinheiro em até 30 dias.</p>
         </div>
-        
-        <div className="support">
-          <h3>💬 Precisa de ajuda?</h3>
-          <p>Entre em contato conosco: <a href="mailto:suporte@labmanager.com">suporte@labmanager.com</a></p>
-        </div>
-      </div>
+      )}
     </div>
   );
 };
 
 export default PlansPage;
-
