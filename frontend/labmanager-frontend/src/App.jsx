@@ -18,6 +18,7 @@ import LabSettingsPage from './pages/LabSettingsPage';
 import PlansPage from './pages/PlansPage';
 import SettingsPage from './pages/SettingsPage';
 import ScanUploadPage from './pages/ScanUploadPage';
+import CommissionsPage from './pages/CommissionsPage';
 import PrivateRoute from './components/layout/PrivateRoute';
 import AIAssistant from './components/ai/AIAssistant';
 import { Toaster } from './components/ui/toaster';
@@ -67,6 +68,7 @@ function AppContent() {
           <Route path="lab-settings" element={<SettingsPage />} />
           <Route path="settings" element={<SettingsPage />} />
           <Route path="scans" element={<PrivateRoute module="jobs"><ScanUploadPage /></PrivateRoute>} />
+          <Route path="commissions" element={<PrivateRoute module="financial"><CommissionsPage /></PrivateRoute>} />
         </Route>
 
         {/* Redirecionar para login se não estiver autenticado */}

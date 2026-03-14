@@ -10,7 +10,8 @@ import {
   Settings,
   LogOut,
   Menu,
-  Box
+  Box,
+  Percent
 } from 'lucide-react';
 import usePermissions from '../../hooks/usePermissions';
 
@@ -63,6 +64,14 @@ export default function Sidebar({ isMobile = false }) {
           <Button variant="ghost" className="w-full justify-start">
             <Box className="mr-2 h-5 w-5" />
             Scans 3D
+          </Button>
+        </Link>
+      )}
+      {can('financial') && (
+        <Link to="/commissions">
+          <Button variant="ghost" className="w-full justify-start">
+            <Percent className="mr-2 h-5 w-5" />
+            Comissões
           </Button>
         </Link>
       )}

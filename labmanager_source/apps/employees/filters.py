@@ -4,7 +4,7 @@ from .models import EmployeeProfile as Employee, JobAssignment, CommissionPaymen
 class EmployeeFilter(django_filters.FilterSet):
     class Meta:
         model = Employee
-        fields = ['name', 'department', 'position', 'is_active', 'hire_date', 'document_number']
+        fields = ['name', 'department', 'position', 'is_active', 'hire_date', 'document_number', 'employee_type']
 
 class JobAssignmentFilter(django_filters.FilterSet):
     class Meta:

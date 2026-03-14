@@ -7,6 +7,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.db import transaction
 from django.http import HttpResponse
 import datetime
+from decimal import Decimal, InvalidOperation
 from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
 try:
@@ -59,6 +60,40 @@ class EmployeeViewSet(viewsets.ModelViewSet):
         skills = employee.skills.all()
         serializer = EmployeeSkillSerializer(skills, many=True)
         return Response(serializer.data)
+
+    @action(detail=True, methods=['patch'], url_path='commission')
+    def update_commission(self, request, pk=None):
+        """
+        PATCH /api/v1/employees/{id}/commission/
+        Body: { "commission_percentage": 30.00 }
+        Atualiza a % de comissão padrão do técnico individualmente.
+        """
+        employee = self.get_object()
+        percentage = request.data.get('commission_percentage')
+
+        if percentage is None:
+            return Response(
+                {'error': 'Campo commission_percentage é obrigatório.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        try:
+            percentage = Decimal(str(percentage))
+            if not (0 <= percentage <= 100):
+                raise ValueError
+        except (ValueError, InvalidOperation):
+            return Response(
+                {'error': 'Percentual inválido. Use um número entre 0 e 100.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        employee.commission_percentage = percentage
+        employee.save(update_fields=['commission_percentage'])
+
+        return Response({
+            'success': True,
+            'employee': employee.name,
+            'commission_percentage': str(percentage),
+        })
 
     @action(detail=True, methods=['get'])
     def assignments(self, request, pk=None):

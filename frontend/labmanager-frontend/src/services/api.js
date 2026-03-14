@@ -463,3 +463,55 @@ export const scanService = {
   }
 };
 
+// Serviço de Comissões
+export const commissionService = {
+  listEmployees: async () => {
+    try {
+      const response = await api.get('/employees/');
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  updateCommission: async (employeeId, percentage) => {
+    try {
+      const response = await api.patch(`/employees/${employeeId}/commission/`, {
+        commission_percentage: percentage,
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  productionReport: async (employeeId, startDate, endDate) => {
+    try {
+      const response = await api.get(
+        `/employees/${employeeId}/production_report/?start_date=${startDate}&end_date=${endDate}`
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  generatePayment: async (employeeId, startDate, endDate) => {
+    try {
+      const response = await api.post('/commission-payments/generate_payment/', {
+        employee_id: employeeId,
+        start_period: startDate,
+        end_period: endDate,
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  emailPayment: async (paymentId) => {
+    try {
+      const response = await api.post(`/commission-payments/${paymentId}/email/`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+};
+
