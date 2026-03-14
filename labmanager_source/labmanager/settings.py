@@ -100,7 +100,7 @@ ROOT_URLCONF = 'labmanager.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -265,6 +265,19 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
+
+from celery.schedules import crontab
+
+CELERY_BEAT_SCHEDULE = {
+    'fechamento-mensal-automatico': {
+        'task': 'apps.financial.tasks.generate_monthly_closing',
+        'schedule': crontab(day_of_month='1', hour='6', minute='0'),
+    },
+    'lembrete-contas-vencer': {
+        'task': 'apps.financial.tasks.send_overdue_reminders',
+        'schedule': crontab(hour='8', minute='0'),  # diário 08h
+    },
+}
 
 # AI/ML Configuration
 OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', '')

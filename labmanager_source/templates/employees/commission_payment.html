@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: sans-serif; }
+        .header { text-align: center; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Pagamento de Comissão</h1>
+    </div>
+    <p>Técnico: {{ technician_name }}</p>
+    <p>Período: {{ start_date }} - {{ end_date }}</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Comissão (%)</th>
+                <th>Valor Comissão</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <td>{{ item.name }}</td>
+                <td>{{ item.commission_rate }}%</td>
+                <td>{{ item.commission_value }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <p>Total a Pagar: {{ total_commission }}</p>
+</body>
+</html>

@@ -11,6 +11,11 @@ import JobsPage from './pages/JobsPage';
 import JobFormPage from './pages/JobFormPage';
 import DeliverySchedulePage from './pages/DeliverySchedulePage';
 import FinancialClosingPage from './pages/FinancialClosingPage';
+import FinancialReportsPage from './pages/FinancialReportsPage';
+import PayersReportPage from './pages/PayersReportPage';
+import SuppliersPage from './pages/SuppliersPage';
+import LabSettingsPage from './pages/LabSettingsPage';
+import PlansPage from './pages/PlansPage';
 import SettingsPage from './pages/SettingsPage';
 import PrivateRoute from './components/layout/PrivateRoute';
 import AIAssistant from './components/ai/AIAssistant';
@@ -54,6 +59,11 @@ function AppContent() {
           <Route path="jobs/:id/edit" element={<PrivateRoute module="jobs"><JobFormPage /></PrivateRoute>} />
           <Route path="delivery-schedule" element={<PrivateRoute module="jobs"><DeliverySchedulePage /></PrivateRoute>} />
           <Route path="financial-closing" element={<PrivateRoute module="financial"><FinancialClosingPage /></PrivateRoute>} />
+          <Route path="pricing" element={<PrivateRoute module="pricing"><PlansPage /></PrivateRoute>} />
+          <Route path="financial-reports" element={<PrivateRoute module="financial"><FinancialReportsPage /></PrivateRoute>} />
+          <Route path="payers-report" element={<PrivateRoute module="financial"><PayersReportPage /></PrivateRoute>} />
+          <Route path="suppliers" element={<PrivateRoute module="materials"><SuppliersPage /></PrivateRoute>} />
+          <Route path="lab-settings" element={<SettingsPage />} />
           <Route path="settings" element={<SettingsPage />} />
         </Route>
 

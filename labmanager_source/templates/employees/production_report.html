@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: sans-serif; }
+        .header { text-align: center; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Relatório de Produção do Técnico</h1>
+    </div>
+    <p>Técnico: {{ technician_name }}</p>
+    <p>Período: {{ start_date }} - {{ end_date }}</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Job</th>
+                <th>Data</th>
+                <th>Valor</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for job in jobs %}
+            <tr>
+                <td>{{ job.name }}</td>
+                <td>{{ job.date }}</td>
+                <td>{{ job.value }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <p>Total: {{ total_value }}</p>
+</body>
+</html>

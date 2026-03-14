@@ -2,8 +2,8 @@ import axios from 'axios';
 import logger from '../utils/logger.js';
 
 // Exportando API_URL para uso em outros serviços
-export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
-export const TOKEN_URL = import.meta.env.VITE_TOKEN_URL || 'http://localhost:8000/api/v1/auth/login/';
+export const API_URL = import.meta.env.VITE_API_URL || '/api/v1';
+export const TOKEN_URL = import.meta.env.VITE_TOKEN_URL || `${API_URL}/auth/login/`;
 
 // Configuração do axios
 const api = axios.create({
@@ -23,6 +23,35 @@ api.interceptors.request.use(
     return config;
   },
   (error) => Promise.reject(error)
+);
+
+// Interceptor de resposta para lidar com 401 (Token Expirado)
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      try {
+        const refresh = localStorage.getItem('refresh_token');
+        if (!refresh) throw new Error('No refresh token');
+        const res = await axios.post(
+          import.meta.env.VITE_TOKEN_REFRESH_URL || 'http://localhost:8000/api/token/refresh/',
+          { refresh }
+        );
+        const newAccess = res.data.access;
+        localStorage.setItem('access_token', newAccess);
+        originalRequest.headers.Authorization = `Bearer ${newAccess}`;
+        return api(originalRequest);
+      } catch {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        localStorage.removeItem('user_data');
+        window.location.href = '/login';
+      }
+    }
+    return Promise.reject(error);
+  }
 );
 
 // Serviço de autenticação

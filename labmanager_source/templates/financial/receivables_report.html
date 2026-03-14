@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: sans-serif; }
+        .header { text-align: center; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Relatório de Contas a Receber</h1>
+    </div>
+    <p>Data do Relatório: {{ report_date }}</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Cliente</th>
+                <th>Vencimento</th>
+                <th>Status</th>
+                <th>Valor</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for receivable in receivables %}
+            <tr>
+                <td>{{ receivable.client_name }}</td>
+                <td>{{ receivable.due_date }}</td>
+                <td>{{ receivable.status }}</td>
+                <td>{{ receivable.amount }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <p>Total Pendente: {{ total_pending }}</p>
+</body>
+</html>
