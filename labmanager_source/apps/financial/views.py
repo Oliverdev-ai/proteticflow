@@ -83,6 +83,29 @@ class AccountsReceivableViewSet(viewsets.ModelViewSet):
             client_entry['count'] += 1
         
         return Response(clients_data)
+    
+    @action(detail=True, methods=['post'], url_path='send-email')
+    def send_email(self, request, pk=None):
+        """
+        POST /api/v1/accounts-receivable/{id}/send-email/
+        Dispara e-mail de cobrança para o cliente via Celery.
+        """
+        from .tasks import send_invoice_email as send_invoice_email_task
+        ar = self.get_object()
+
+        if not ar.client.email:
+            return Response(
+                {'error': f'Cliente {ar.client.name} não tem e-mail cadastrado.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        send_invoice_email_task.delay(ar.id)
+
+        return Response({
+            'success': True,
+            'message': f'E-mail de cobrança agendado para {ar.client.email}.',
+            'ar_id': ar.id,
+        })
 
 class AccountsPayableViewSet(viewsets.ModelViewSet):
     queryset = AccountsPayable.objects.all()

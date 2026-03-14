@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ subject }}</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f4f4; margin: 0; padding: 0; }
+    .container { max-width: 600px; margin: 30px auto; background: #fff;
+                 border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,.1); }
+    .header { background: #2563eb; color: #fff; padding: 28px 32px; }
+    .header h1 { margin: 0; font-size: 22px; }
+    .header p  { margin: 6px 0 0; font-size: 13px; opacity: .85; }
+    .body { padding: 32px; color: #333; }
+    .body h2 { font-size: 18px; margin-top: 0; color: #1e40af; }
+    .info-box { background: #f0f4ff; border-left: 4px solid #2563eb;
+                padding: 16px 20px; border-radius: 4px; margin: 20px 0; }
+    .info-box p { margin: 6px 0; font-size: 14px; }
+    .info-box .amount { font-size: 28px; font-weight: bold; color: #2563eb; margin: 8px 0 0; }
+    .reminder-badge { background: #fef3c7; color: #92400e; border: 1px solid #fde68a;
+                      padding: 8px 16px; border-radius: 20px; display: inline-block;
+                      font-size: 13px; font-weight: bold; margin-bottom: 16px; }
+    .footer { background: #f8f9fa; padding: 20px 32px; font-size: 12px;
+              color: #888; text-align: center; border-top: 1px solid #e9ecef; }
+    .footer a { color: #2563eb; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>{{ lab_name }}</h1>
+      <p>Sistema de Gestão para Laboratório de Prótese</p>
+    </div>
+    <div class="body">
+      {% if reminder %}
+        <div class="reminder-badge">⏰ Lembrete de Vencimento</div>
+      {% endif %}
+
+      <h2>Olá, Dr(a). {{ client_name }}</h2>
+
+      <p>
+        {% if reminder %}
+          Este é um lembrete de que a conta abaixo <strong>vence em 3 dias</strong>.
+          Por favor, efetue o pagamento para evitar atrasos.
+        {% else %}
+          Segue abaixo o resumo da cobrança referente ao trabalho solicitado.
+        {% endif %}
+      </p>
+
+      <div class="info-box">
+        <p><strong>Trabalho:</strong> {{ job_number }}</p>
+        <p><strong>Vencimento:</strong> {{ due_date|date:"d/m/Y" }}</p>
+        <div class="amount">R$ {{ amount }}</div>
+      </div>
+
+      <p>Em caso de dúvidas, entre em contato conosco:</p>
+      {% if lab_phone %}<p>📞 {{ lab_phone }}</p>{% endif %}
+      {% if lab_email %}<p>✉️ <a href="mailto:{{ lab_email }}">{{ lab_email }}</a></p>{% endif %}
+
+      <p style="margin-top:24px;">Atenciosamente,<br><strong>{{ lab_name }}</strong></p>
+    </div>
+    <div class="footer">
+      <p>Este e-mail foi enviado automaticamente pelo sistema ProteticFlow.</p>
+    </div>
+  </div>
+</body>
+</html>
