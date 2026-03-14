@@ -34,6 +34,7 @@ urlpatterns = [
     path("api/v1/", include("apps.employees.urls")),
     path("api/v1/", include("apps.materials.urls")),
     path("api/v1/", include("apps.financial.urls")),
+    path("api/v1/", include("apps.scans.urls")),
     path("api/v1/access/", include("access_control.urls")),
     path("api/v1/dashboard/", include("dashboard.urls")),
     path("api/v1/scheduling/", include("intelligent_scheduling.urls")),

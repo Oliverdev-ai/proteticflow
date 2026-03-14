@@ -69,6 +69,7 @@ INSTALLED_APPS = [
     'apps.materials',
     'apps.employees',
     'apps.financial',
+    'apps.scans',
     # Other apps
     'accounts',
     'ai_assistant',

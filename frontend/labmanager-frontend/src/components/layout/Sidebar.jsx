@@ -9,7 +9,8 @@ import {
   DollarSign,
   Settings,
   LogOut,
-  Menu
+  Menu,
+  Box
 } from 'lucide-react';
 import usePermissions from '../../hooks/usePermissions';
 
@@ -54,6 +55,14 @@ export default function Sidebar({ isMobile = false }) {
           <Button variant="ghost" className="w-full justify-start">
             <DollarSign className="mr-2 h-5 w-5" />
             Tabelas de Preços
+          </Button>
+        </Link>
+      )}
+      {can('jobs') && (
+        <Link to="/scans">
+          <Button variant="ghost" className="w-full justify-start">
+            <Box className="mr-2 h-5 w-5" />
+            Scans 3D
           </Button>
         </Link>
       )}

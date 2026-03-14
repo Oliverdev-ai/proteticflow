@@ -261,6 +261,18 @@ class LabSettings(models.Model):
         help_text=_("Hex color code for secondary brand color")
     )
     
+    # Impressora 3D
+    printer_ip = models.CharField(
+        _('IP da Impressora 3D'),
+        max_length=50,
+        blank=True,
+        help_text=_('IP ou hostname da impressora 3D para envio automático de STL')
+    )
+    printer_api_port = models.IntegerField(
+        _('Porta da API da Impressora'),
+        default=80,
+    )
+    
     created_at = models.DateTimeField(_("Created At"), auto_now_add=True)
     updated_at = models.DateTimeField(_("Updated At"), auto_now=True)
     
