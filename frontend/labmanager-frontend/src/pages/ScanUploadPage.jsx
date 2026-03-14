@@ -16,10 +16,9 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { 
-  ScanCaseViewSet, // We'll use axios directly or add to api.js
+  scanService,
   API_URL 
 } from '../services/api';
-import axios from 'axios';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { 
@@ -81,14 +80,9 @@ const ScanUploadPage = () => {
     if (selectedJobId) formData.append('job_id', selectedJobId);
 
     try {
-      const response = await axios.post(`${API_URL}/scans/upload/`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-        }
-      });
+      const data = await scanService.upload(formData);
       
-      setScanResult(response.data);
+      setScanResult(data);
       toast({ 
         title: "Sucesso!", 
         description: `Scan ${response.data.order_id} importado com sucesso.`,
@@ -108,11 +102,7 @@ const ScanUploadPage = () => {
   const handleSendToPrinter = async () => {
     if (!scanResult) return;
     try {
-      await axios.post(`${API_URL}/scans/${scanResult.id}/send-to-printer/`, {}, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-        }
-      });
+      await scanService.sendToPrinter(scanResult.id);
       toast({ title: "Enviado!", description: "STL enviado para a fila de impressão." });
       // Atualizar status local
       setScanResult(prev => ({ ...prev, print_status: 'sent' }));

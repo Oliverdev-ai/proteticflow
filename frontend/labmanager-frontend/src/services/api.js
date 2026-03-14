@@ -429,3 +429,37 @@ export const aiAssistantService = {
   }
 };
 
+// Serviço de Scans
+export const scanService = {
+  upload: async (formData) => {
+    try {
+      const response = await api.post('/scans/upload/', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  sendToPrinter: async (id, printerIp = '') => {
+    try {
+      const response = await api.post(`/scans/${id}/send-to-printer/`, 
+        printerIp ? { printer_ip: printerIp } : {}
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  list: async (params = {}) => {
+    try {
+      const response = await api.get('/scans/', { params });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+};
+
