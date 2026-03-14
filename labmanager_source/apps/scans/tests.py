@@ -1,6 +1,6 @@
-import tempfile, os
 from django.test import TestCase
 from django.contrib.auth import get_user_model
+from django.core.files.uploadedfile import SimpleUploadedFile
 from rest_framework.test import APIClient
 from rest_framework import status
 from apps.scans.xml_parser import parse_itero_xml
@@ -45,12 +45,23 @@ class XMLParserTest(TestCase):
 
 class ScanUploadAPITest(TestCase):
     def setUp(self):
+        from auditlog.registry import auditlog
         User = get_user_model()
+        if auditlog.contains(User):
+            auditlog.unregister(User)
+            self._auditlog_user_registered = True
+        else:
+            self._auditlog_user_registered = False
         self.user = User.objects.create_user(
             username='gerente_test', password='pass123', role='gerente'
         )
         self.client_api = APIClient()
         self.client_api.force_authenticate(user=self.user)
+
+    def tearDown(self):
+        if getattr(self, '_auditlog_user_registered', False):
+            from auditlog.registry import auditlog
+            auditlog.register(get_user_model())
 
     def test_upload_missing_xml(self):
         response = self.client_api.post('/api/v1/scans/upload/', {}, format='multipart')
@@ -58,32 +69,26 @@ class ScanUploadAPITest(TestCase):
         self.assertIn('error', response.data)
 
     def test_upload_valid_xml(self):
-        with tempfile.NamedTemporaryFile(suffix='.xml', delete=False, mode='w') as f:
-            f.write(ITERO_XML_V50)
-            tmp_path = f.name
-        try:
-            with open(tmp_path, 'rb') as xml_file:
-                response = self.client_api.post(
-                    '/api/v1/scans/upload/',
-                    {'xml_file': xml_file},
-                    format='multipart'
-                )
-            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-            self.assertEqual(response.data['order_id'], 'TEST001')
-            self.assertEqual(response.data['patient_name'], 'Silva, João')
-        finally:
-            os.unlink(tmp_path)
+        xml_file = SimpleUploadedFile(
+            'scan.xml', ITERO_XML_V50.encode('utf-8'), content_type='application/xml'
+        )
+        response = self.client_api.post(
+            '/api/v1/scans/upload/',
+            {'xml_file': xml_file},
+            format='multipart'
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['order_id'], 'TEST001')
+        self.assertEqual(response.data['patient_name'], 'Silva, João')
 
     def test_upload_duplicate_rejected(self):
         """Segundo upload do mesmo order_id deve retornar 409."""
-        with tempfile.NamedTemporaryFile(suffix='.xml', delete=False, mode='w') as f:
-            f.write(ITERO_XML_V50)
-            tmp_path = f.name
-        try:
-            with open(tmp_path, 'rb') as xml_file:
-                self.client_api.post('/api/v1/scans/upload/', {'xml_file': xml_file}, format='multipart')
-            with open(tmp_path, 'rb') as xml_file:
-                response = self.client_api.post('/api/v1/scans/upload/', {'xml_file': xml_file}, format='multipart')
-            self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
-        finally:
-            os.unlink(tmp_path)
+        xml_file1 = SimpleUploadedFile(
+            'scan1.xml', ITERO_XML_V50.encode('utf-8'), content_type='application/xml'
+        )
+        xml_file2 = SimpleUploadedFile(
+            'scan2.xml', ITERO_XML_V50.encode('utf-8'), content_type='application/xml'
+        )
+        self.client_api.post('/api/v1/scans/upload/', {'xml_file': xml_file1}, format='multipart')
+        response = self.client_api.post('/api/v1/scans/upload/', {'xml_file': xml_file2}, format='multipart')
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
