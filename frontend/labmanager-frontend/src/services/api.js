@@ -36,7 +36,7 @@ api.interceptors.response.use(
         const refresh = localStorage.getItem('refresh_token');
         if (!refresh) throw new Error('No refresh token');
         const res = await axios.post(
-          import.meta.env.VITE_TOKEN_REFRESH_URL || 'http://localhost:8000/api/token/refresh/',
+          import.meta.env.VITE_TOKEN_REFRESH_URL || '/api/token/refresh/',
           { refresh }
         );
         const newAccess = res.data.access;
