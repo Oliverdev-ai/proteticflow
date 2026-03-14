@@ -1,4 +1,5 @@
 from rest_framework import generics, status, permissions
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
@@ -13,6 +14,31 @@ from .serializers import (
     LoginSerializer, PasswordChangeSerializer
 )
 from .services.two_factor import TwoFactorService
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def export_my_data(request):
+    """
+    GET /api/v1/auth/export-my-data/
+    Retorna todos os dados pessoais do usuário autenticado (LGPD Art. 18).
+    """
+    user = request.user
+    data = {
+        'user': {
+            'id': user.id,
+            'username': user.username,
+            'email': user.email,
+            'full_name': user.get_full_name(),
+            'role': getattr(user, 'role', None),
+            'date_joined': str(user.date_joined),
+            'last_login': str(user.last_login),
+            'is_two_factor_enabled': getattr(user, 'is_two_factor_enabled', False),
+        },
+        'generated_at': str(__import__('datetime').datetime.now()),
+        'note': 'Exportação gerada em conformidade com a LGPD (Lei 13.709/2018), Art. 18.',
+    }
+    return Response(data)
 
 
 class LoginView(APIView):

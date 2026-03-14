@@ -3,7 +3,7 @@ from .views import (
     LoginView, LogoutView, UserProfileView, UserListCreateView,
     UserDetailView, PasswordChangeView,
     user_permissions, VerifyLogin2FAView, Setup2FAView, VerifySetup2FAView,
-    UserRoleUpdateView, UserAuthCreateView
+    UserRoleUpdateView, UserAuthCreateView, export_my_data
 )
 
 app_name = 'accounts'
@@ -28,6 +28,6 @@ urlpatterns = [
     path('users/', UserListCreateView.as_view(), name='user-list-create'),
     path('users/<int:pk>/', UserDetailView.as_view(), name='user-detail'),
     path('users/<int:pk>/role/', UserRoleUpdateView.as_view(), name='user-role-update'),
-    
+    path('auth/export-my-data/', export_my_data, name='export-my-data'),
 ]
 
