@@ -1,0 +1,61 @@
+name: Django CI - ProteticFlow
+
+on:
+  push:
+    branches: [ "main", "dev", "feature/**" ]
+  pull_request:
+    branches: [ "main", "dev" ]
+
+jobs:
+  test:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_DB: proteticflow_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+
+    - name: Install Dependencies
+      working-directory: labmanager_source
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest-django pytest-env
+
+    - name: Run Django Tests
+      working-directory: labmanager_source
+      env:
+        DB_NAME: proteticflow_test
+        DB_USER: postgres
+        DB_PASSWORD: password
+        DB_HOST: localhost
+        DB_PORT: 5432
+        REDIS_URL: redis://localhost:6379/0
+        SECRET_KEY: test-key-123-not-for-production
+        DEBUG: False
+      run: |
+        python manage.py test
