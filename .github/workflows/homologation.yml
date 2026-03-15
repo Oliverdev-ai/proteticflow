@@ -2,9 +2,9 @@ name: Homologation Workflow
 
 on:
   push:
-    branches: [ "main", "homologation", "staging" ]
+    branches: [ "main", "homologation", "staging", "dev", "feature/**" ]
   pull_request:
-    branches: [ "main", "homologation", "staging" ]
+    branches: [ "main", "homologation", "staging", "dev" ]
 
 jobs:
   Linter_SAST:

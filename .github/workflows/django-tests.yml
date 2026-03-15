@@ -57,5 +57,6 @@ jobs:
         SECRET_KEY: test-key-123-not-for-production
         DEBUG: False
       run: |
+      run: |
         cd labmanager_source
-        python manage.py test
+        pytest -v --ds=labmanager.settings
