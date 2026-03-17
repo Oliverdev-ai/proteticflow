@@ -108,17 +108,22 @@ deploy-staging: ## STAGING - Deploy completo do staging
 	@echo "$(GREEN)👤 Admin: admin / staging123$(NC)"
 
 migrate-staging: ## STAGING - Executar migrações no staging
-	docker-compose -f $(COMPOSE_STAGING) exec backend python manage.py migrate
+	docker-compose -f $(COMPOSE_STAGING) exec web python manage.py migrate
 
-seed-staging: ## STAGING - Popular dados de teste
-	docker-compose -f $(COMPOSE_STAGING) exec backend python manage.py shell -c "exec(open('/app/scripts/seed_test_data.py').read())"
+seed-staging: ## STAGING - Popular dados de teste (superusuário via entrypoint)
+	@docker-compose -f $(COMPOSE_STAGING) exec web python manage.py shell -c "\
+from django.contrib.auth import get_user_model; \
+User = get_user_model(); \
+u, c = User.objects.get_or_create(username='admin', defaults={'email': 'admin@staging.proteticflow.com'}); \
+u.set_password('staging123'); u.is_staff = u.is_superuser = True; u.save(); \
+print('Admin: admin / staging123' if c else 'Admin já existe')"
 
 backup-staging: ## STAGING - Backup do banco de staging
-	docker-compose -f $(COMPOSE_STAGING) exec postgres pg_dump -U proteticflow_user proteticflow_staging > backup_staging_$(shell date +%Y%m%d_%H%M%S).sql
+	docker-compose -f $(COMPOSE_STAGING) exec db pg_dump -U $${DB_USER:-postgres_staging} $${DB_NAME:-proteticflow_staging} > backup_staging_$$(date +%Y%m%d_%H%M%S).sql
 
 restore-staging: ## STAGING - Restaurar backup no staging
 	@if [ -z "$(BACKUP_FILE)" ]; then echo "$(RED)Uso: make restore-staging BACKUP_FILE=arquivo.sql$(NC)"; exit 1; fi
-	docker-compose -f $(COMPOSE_STAGING) exec -T postgres psql -U proteticflow_user -d proteticflow_staging < $(BACKUP_FILE)
+	docker-compose -f $(COMPOSE_STAGING) exec -T db psql -U $${DB_USER:-postgres_staging} -d $${DB_NAME:-proteticflow_staging} < $(BACKUP_FILE)
 
 # ==================== TESTES ====================
 

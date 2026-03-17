@@ -77,7 +77,7 @@ else:
 log "Criando usuÃƒÂ¡rios de teste..."
 python manage.py shell -c "
 from django.contrib.auth import get_user_model
-from apps.employees.models import Employee
+from apps.employees.models import EmployeeProfile
 import random
 
 User = get_user_model()
@@ -120,11 +120,11 @@ from datetime import datetime, timedelta
 
 # Criar clientes de teste
 clients_data = [
-    {'name': 'ClÃƒÂ­nica Dental Smile', 'email': 'contato@dentalsmile.com', 'phone': '(11) 99999-1111'},
-    {'name': 'Odontologia Moderna', 'email': 'info@odontomoderna.com', 'phone': '(11) 99999-2222'},
-    {'name': 'Centro OdontolÃƒÂ³gico SÃƒÂ£o Paulo', 'email': 'atendimento@centrosp.com', 'phone': '(11) 99999-3333'},
-    {'name': 'ClÃƒÂ­nica Dr. Silva', 'email': 'drsilva@clinica.com', 'phone': '(11) 99999-4444'},
-    {'name': 'Dental Care Premium', 'email': 'premium@dentalcare.com', 'phone': '(11) 99999-5555'},
+    {'name': 'ClÃ­nica Dental Smile', 'email': 'contato@dentalsmile.com', 'phone_primary': '(11) 99999-1111'},
+    {'name': 'Odontologia Moderna', 'email': 'info@odontomoderna.com', 'phone_primary': '(11) 99999-2222'},
+    {'name': 'Centro OdontolÃ³gico SÃ£o Paulo', 'email': 'atendimento@centrosp.com', 'phone_primary': '(11) 99999-3333'},
+    {'name': 'ClÃ­nica Dr. Silva', 'email': 'drsilva@clinica.com', 'phone_primary': '(11) 99999-4444'},
+    {'name': 'Dental Care Premium', 'email': 'premium@dentalcare.com', 'phone_primary': '(11) 99999-5555'},
 ]
 
 for client_data in clients_data:
@@ -134,11 +134,11 @@ for client_data in clients_data:
 
 # Criar materiais de teste
 materials_data = [
-    {'name': 'Resina AcrÃƒÂ­lica', 'description': 'Resina para prÃƒÂ³teses', 'unit_price': 25.50},
-    {'name': 'Dente Artificial', 'description': 'Dente de porcelana', 'unit_price': 15.00},
-    {'name': 'Liga MetÃƒÂ¡lica', 'description': 'Liga para estruturas', 'unit_price': 45.00},
-    {'name': 'CerÃƒÂ¢mica Dental', 'description': 'CerÃƒÂ¢mica para coroas', 'unit_price': 35.00},
-    {'name': 'Silicone de Moldagem', 'description': 'Silicone para moldes', 'unit_price': 12.00},
+    {'name': 'Resina AcrÃ­lica', 'code': 'MAT001', 'description': 'Resina para prÃ³teses', 'last_purchase_price': 25.50},
+    {'name': 'Dente Artificial', 'code': 'MAT002', 'description': 'Dente de porcelana', 'last_purchase_price': 15.00},
+    {'name': 'Liga MetÃ­¡lica', 'code': 'MAT003', 'description': 'Liga para estruturas', 'last_purchase_price': 45.00},
+    {'name': 'CerÃ¢mica Dental', 'code': 'MAT004', 'description': 'CerÃ¢mica para coroas', 'last_purchase_price': 35.00},
+    {'name': 'Silicone de Moldagem', 'code': 'MAT005', 'description': 'Silicone para moldes', 'last_purchase_price': 12.00},
 ]
 
 for material_data in materials_data:

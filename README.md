@@ -11,6 +11,8 @@ O **DentalFlow** é o primeiro sistema verdadeiramente inteligente para gestão 
 > [!IMPORTANT]
 > **AVISO DE ARQUITETURA:** Todo o desenvolvimento ativo deste projeto ocorre estritamente dentro de duas pastas principais. **Ignorem quaisquer arquivos avulsos na raiz do repositório.**
 
+**Documentação de homologação e estado atual:** ver [DOCUMENTACAO_HOMOLOGACAO.md](DOCUMENTACAO_HOMOLOGACAO.md) para staging, testes, API e checklist de homologação.
+
 A base de código está dividida em:
 
 1. **Backend (Django REST Framework)** 👉 pasta `labmanager_source/`
