@@ -1,0 +1,583 @@
+Prompt para Continuação do Desenvolvimento do Sistema de Gerenciamento para Laboratório de Prótese
+
+Estou desenvolvendo um sistema de gerenciamento para laboratório de prótese dentária, inspirado no site onprotese.com.br. O projeto já tem uma estrutura básica implementada em Django no backend e React no frontend.
+
+**Estado Atual do Projeto:**
+
+**Backend (Django):**
+1.  Estrutura do Projeto Django: Criada e organizada em módulos.
+2.  Modelos de Dados: Implementados para Clientes, Tabelas de Preços e Trabalhos.
+3.  APIs REST: Implementadas e testadas para Clientes, Tabelas de Preços, Itens de Serviço e Trabalhos (CRUD básico).
+4.  Correções de Sintaxe: Erros de sintaxe em `apps/jobs/serializers.py` (caracteres de escape e `extra_kwargs`) foram corrigidos.
+5.  Dependências Instaladas: Django, Django REST Framework e `django-filter` estão instalados.
+6.  Autenticação JWT: Implementada e configurada usando `djangorestframework-simplejwt`, com endpoints para obtenção e atualização de tokens.
+7.  Upload de Imagens: Configurado e testado para o módulo de Trabalhos.
+8.  Migrações de Banco de Dados: Aplicadas.
+
+**Frontend (React):**
+1.  Estrutura do Projeto React: Criada usando `manus-create-react-app`.
+2.  Dependências Instaladas: `axios` e outras bibliotecas padrão do template estão instaladas.
+3.  Configuração do Vite: Atualizada para permitir acesso externo ao servidor de desenvolvimento.
+4.  Componentes e Páginas Implementados:
+    *   `LoginPage.jsx`: Página de login funcional.
+    *   `Layout.jsx`: Componente de layout principal com barra lateral (`Sidebar.jsx`).
+    *   `DashboardPage.jsx`: Página de dashboard com estatísticas e gráficos de exemplo.
+    *   `ClientsPage.jsx`: Página de listagem de clientes com busca e ações básicas.
+    *   `JobsPage.jsx`: Página de listagem de trabalhos com busca e status.
+    *   `JobPhotoUpload.jsx`: Componente para upload de fotos de trabalhos.
+5.  Serviços de API: Implementados em `src/services/api.js` para autenticação, clientes, tabelas de preços, itens de serviço e trabalhos.
+6.  Navegação: Configurada usando `react-router-dom` com rotas protegidas por autenticação.
+
+**Próximos Passos Imediatos (Fase 1 - MVP - Continuação):**
+1.  **Desenvolvimento do Frontend (React):**
+    *   Implementar as páginas de formulário para criação e edição de Clientes.
+    *   Implementar as páginas de formulário para criação e edição de Trabalhos.
+    *   Implementar as páginas de formulário para criação e edição de Tabelas de Preços e Itens de Serviço.
+    *   Melhorar a validação de formulários no frontend.
+2.  **Testes Completos:**
+    *   Realizar testes completos das APIs (CRUD, uploads, autenticação) com o frontend.
+
+**Tarefas Pendentes para Fase 2:**
+1.  Implementar módulo financeiro.
+2.  Desenvolver relatórios gerenciais.
+3.  Criar dashboard com indicadores-chave mais detalhados.
+4.  Implementar portal do cliente.
+5.  Adicionar gestão de estoque.
+
+Por favor, continue o desenvolvimento a partir deste ponto, focando na implementação das páginas de formulário de criação e edição no frontend React para os módulos de Clientes, Trabalhos e Tabelas de Preços/Itens de Serviço.
+
+
+Dossiê Técnico: Análise e Roteiro Estratégico do Projeto LabManager (ProteticFlow)
+
+Introdução
+
+Este dossiê técnico tem como objetivo consolidar o progresso do projeto LabManager (ProteticFlow) até o momento, identificar pontos críticos, analisar o estado atual das implementações de frontend e backend, e propor um roteiro estratégico para a sua conclusão com excelência. A transição para um ambiente de desenvolvimento de nível superior exige uma revisão rigorosa e um planejamento preciso para garantir a qualidade e a segurança do produto final.
+
+
+
+
+1. Log de Engenharia Detalhado
+
+Esta seção descreve cronologicamente as ações executadas e os resultados obtidos durante a interação.
+
+1.1. Inicialização e Análise de Arquivos
+
+•
+Recebimento e Descompactação: Foram recebidos e descompactados os arquivos labmanager_project.zip e pasted_content.txt. O labmanager_project.zip continha a estrutura inicial do projeto, enquanto o pasted_content.txt fornecia as instruções iniciais para o desenvolvimento.
+
+•
+Leitura de Instruções: O conteúdo do pasted_content.txt foi lido, delineando as tarefas de implementação de páginas de formulário e testes de API.
+
+1.2. Configuração e Desenvolvimento do Frontend (React)
+
+•
+Instalação de Dependências: As dependências do frontend foram instaladas utilizando npm install e npm install --legacy-peer-deps no diretório /home/ubuntu/labmanager_project/home/ubuntu/labmanager/frontend/labmanager-frontend/.
+
+•
+Implementação de Páginas de Formulário: As seguintes páginas de formulário foram identificadas e implementadas/verificadas no frontend:
+
+•
+ClientFormPage.jsx
+
+•
+JobFormPage.jsx
+
+•
+PriceTableFormPage.jsx
+
+•
+ServiceItemFormPage.jsx
+
+
+
+•
+Configuração do Vite: O arquivo vite.config.js foi atualizado para incluir tailwindcss e configurar o host para true e allowedHosts para o domínio do sandbox, permitindo o acesso externo ao servidor de desenvolvimento.
+
+•
+Início do Servidor de Desenvolvimento: O servidor de desenvolvimento React foi iniciado com npm run dev e a porta 5173 foi exposta para acesso público.
+
+•
+Tentativa de Login: Foi realizada uma tentativa de login na interface do frontend utilizando as credenciais admin e SuperAdmin@2025!. No entanto, o login falhou, indicando
+um problema na comunicação com o backend ou na configuração de autenticação.
+
+1.3. Configuração e Desenvolvimento do Backend (Django)
+
+•
+Instalação de Dependências: As dependências do Django foram instaladas (Django, djangorestframework, djangorestframework-simplejwt, django-filter, django-cors-headers, Pillow, djangorestframework-recursive, drf-writable-nested) no ambiente virtual do projeto.
+
+•
+Criação de Superusuário: Foi tentada a criação de um superusuário admin com admin@example.com. Como o usuário já existia, foi realizada a alteração da senha para SuperAdmin@2025!.
+
+•
+Problemas de Porta e Processos: Houve persistentes problemas com a porta 8000 do Django, indicando que o servidor estava travado ou que processos anteriores não foram encerrados corretamente. Diversas tentativas de matar processos (sudo lsof -t -i:8000, pkill -f python, ps aux | grep ... | awk ... | xargs sudo kill -9) foram realizadas, mas o problema persistiu, levando à decisão de reiniciar o ambiente do sandbox para garantir a estabilidade.
+
+
+
+
+2. Auditoria de Estado Atual
+
+2.1. Segurança
+
+•
+Autenticação JWT: O projeto utiliza Django REST Framework Simple JWT para autenticação, o que é uma boa prática. No entanto, a falha no login do frontend indica que a integração ou a configuração do JWT pode estar comprometida ou incompleta.
+
+•
+Variáveis de Ambiente: A instrução de
+sempre usar variáveis de ambiente é crucial para a segurança, especialmente para chaves secretas e configurações de banco de dados. É necessário verificar se todas as configurações sensíveis estão sendo carregadas de variáveis de ambiente e não hardcoded.
+
+•
+OWASP Top 10: A análise inicial não revelou vulnerabilidades diretas do OWASP Top 10, mas a falha na autenticação pode ser um sintoma de um problema maior relacionado a Broken Authentication ou Broken Access Control.
+
+2.2. Arquitetura
+
+•
+Estrutura do Projeto: A estrutura do projeto segue um padrão comum para aplicações Django/React, com frontend e backend separados. Isso facilita a escalabilidade e a manutenção.
+
+•
+Django REST Framework: O uso do DRF para a API RESTful é uma escolha sólida, promovendo a padronização e a eficiência no desenvolvimento da API.
+
+•
+Multi-tenant: A arquitetura multi-tenant não foi explicitamente abordada ou implementada até o momento, mas é um requisito crucial para um SaaS B2B. Isso exigirá atenção especial na modelagem de dados, isolamento de dados e gerenciamento de esquemas ou prefixos de tabelas.
+
+•
+Clean Architecture: A adesão aos princípios da Clean Architecture deve ser verificada no código-fonte, garantindo a separação de preocupações, a testabilidade e a manutenibilidade do sistema.
+
+2.3. UX (Experiência do Usuário)
+
+•
+Heurísticas de Nielsen: A interface de login, embora funcional, não apresentou feedback claro sobre o motivo da falha no login, o que viola a heurística de Visibilidade do Status do Sistema. A falta de feedback imediato pode gerar frustração no usuário.
+
+•
+Redução de Carga Cognitiva: A navegação e os formulários parecem seguir um padrão razoável, mas uma auditoria mais aprofundada será necessária para otimizar fluxos de tarefa e reduzir a carga cognitiva em operações complexas.
+
+•
+Design System: Não foi possível avaliar a consistência de um Design System, mas é um ponto importante para garantir uma experiência de usuário unificada e escalável.
+
+
+
+
+3. Plano de Voo (Next Steps)
+
+Para avançar com o projeto LabManager e garantir a excelência, os seguintes passos são propostos:
+
+3.1. Estabilização do Ambiente e Autenticação
+
+1.
+Reinicialização do Sandbox: Iniciar um novo ambiente de sandbox para garantir que não haja processos travados ou conflitos de porta remanescentes.
+
+2.
+Configuração do Backend:
+
+•
+Iniciar o servidor Django na porta 8000.
+
+•
+Verificar a configuração do settings.py para garantir que as variáveis de ambiente estejam sendo carregadas corretamente e que as configurações de CORS e JWT estejam adequadas.
+
+•
+Confirmar a existência e a senha do superusuário admin (SuperAdmin@2025!).
+
+
+
+3.
+Configuração do Frontend:
+
+•
+Instalar as dependências do frontend.
+
+•
+Iniciar o servidor de desenvolvimento React na porta 5173.
+
+•
+Verificar a configuração do vite.config.js e do arquivo de configuração da API para garantir que o frontend esteja apontando para a URL correta do backend (http://localhost:8000/api/ ).
+
+
+
+4.
+Teste de Login: Realizar o login no frontend com as credenciais admin e SuperAdmin@2025!. Depurar quaisquer erros que surjam, verificando logs do backend e requisições de rede no navegador.
+
+3.2. Testes Abrangentes de Funcionalidades
+
+1.
+CRUD de Clientes: Testar a criação, leitura, atualização e exclusão de clientes através da interface do frontend, verificando a persistência dos dados no backend.
+
+2.
+CRUD de Trabalhos: Repetir o processo de CRUD para a funcionalidade de Trabalhos.
+
+3.
+CRUD de Tabelas de Preços e Itens de Serviço: Realizar os testes de CRUD para Tabelas de Preços e seus respectivos Itens de Serviço.
+
+4.
+Upload de Imagens: Se aplicável, testar a funcionalidade de upload de imagens, garantindo que as imagens sejam armazenadas corretamente e associadas aos objetos correspondentes.
+
+3.3. Otimização e Refatoração
+
+1.
+Auditoria de Código: Realizar uma auditoria detalhada do código-fonte do frontend e backend, focando em:
+
+•
+Segurança: Revisar permission_classes nos endpoints do DRF, validação de entrada, proteção contra IDOR e JWT hardening.
+
+•
+Arquitetura: Garantir a adesão à Clean Architecture e preparar a estrutura para a implementação multi-tenant.
+
+•
+Performance: Otimizar queries de ORM no Django, identificar e corrigir gargalos no frontend.
+
+•
+UX: Aplicar heurísticas de Nielsen para melhorar a usabilidade, reduzir a carga cognitiva e garantir a consistência do Design System.
+
+
+
+2.
+Geração de Testes: Implementar testes automatizados (pytest para backend, Testing Library para frontend) para as funcionalidades críticas, garantindo a robustez e prevenindo regressões.
+
+
+
+
+4. Prompt para Continuidade (Novo Chat)
+
+Para continuar o desenvolvimento do projeto LabManager (ProteticFlow) em um novo chat, utilize o seguinte prompt:
+
+Plain Text
+
+
+Continuar o desenvolvimento do projeto LabManager (ProteticFlow). O objetivo é garantir a estabilidade do ambiente, resolver o problema de login no frontend, realizar testes completos das APIs (CRUD e upload de imagens) e otimizar o código-fonte seguindo as melhores práticas. O projeto atual está disponível no diretório `/home/ubuntu/labmanager_project`. As credenciais de superusuário do Django são: usuário `admin` e senha `SuperAdmin@2025!`.
+
+Considere o relatório de análise e próximos passos fornecido anteriormente para guiar as ações. Priorize a segurança, integridade de dados e coerência arquitetural.
+
+
+
+Materiais Essenciais para o Novo Chat:
+
+•
+labmanager_project.zip (o arquivo original do projeto)
+
+•
+pasted_content.txt (o arquivo com as instruções iniciais)
+
+•
+relatorio_completo_labmanager.md (este relatório)
+
+Dossiê de Entrega: LabManager
+
+Para: Patricia
+De: GEN-ENGINEER
+Data: 17 de Março de 2026
+Assunto: Dossiê completo sobre o estado de entrega do projeto LabManager ao final de nossa interação.
+
+
+
+
+Sumário Executivo
+
+Este dossiê documenta a evolução e o estado do projeto LabManager conforme desenvolvido e entregue ao longo de nossa colaboração. O projeto foi transformado de uma base de código inicial com problemas de estabilidade e funcionalidade em um protótipo avançado de um produto SaaS (Software as a Service) comercialmente viável, com uma arquitetura robusta, um sistema de licenciamento moderno e uma interface de usuário completamente redesenhada para competir com os líderes de mercado.
+
+O estado final do projeto, antes da interrupção e reset do ambiente, consistia em uma aplicação com backend Django e frontend React totalmente funcionais para as funcionalidades essenciais, incluindo um sistema de login seguro, um dashboard de nível profissional, e cadastros de clientes e trabalhos. As funcionalidades mais avançadas, como o sistema financeiro e roteiro de entregas, tiveram seus modelos de dados e APIs criados no backend e a interface do roteiro de entregas implementada no frontend, estabelecendo uma base sólida para a conclusão.
+
+Este documento detalha a arquitetura, as funcionalidades implementadas, o estado de cada componente, e os próximos passos estratégicos para levar o LabManager à produção e comercialização.
+
+
+
+
+1. Visão Geral e Evolução do Projeto
+
+O projeto evoluiu significativamente a partir do escopo inicial, adaptando-se a novas visões estratégicas e requisitos de mercado.
+
+Fase
+Descrição
+Resultado
+Impacto no Projeto
+Inicial
+Estabilizar ambiente, corrigir login, testar APIs e otimizar código.
+Ambiente estabilizado, login funcional e APIs básicas validadas.
+Estabelecimento de uma base funcional para desenvolvimento.
+Licenciamento
+Implementar um sistema de planos (Gratuito, Básico, Premium) para monetização.
+Criação de modelos no backend e interface no frontend para gerenciar licenças e exibir planos.
+Transformação do projeto em um modelo de negócio SaaS.
+Redesign de UI/UX
+Melhorar drasticamente a interface, inspirando-se no concorrente LabFácil.
+Redesenho completo do dashboard e páginas principais com design profissional, cores pastéis e gráficos.
+Aumento do valor percebido e da competitividade do produto.
+Funcionalidades Avançadas
+Adicionar roteiro de entregas, ajuste de preço por cliente, sistema financeiro e personalização de relatórios.
+Concepção da arquitetura, criação dos modelos de dados no backend e implementação da UI para o roteiro de entregas.
+Definição do escopo para a versão 1.0 completa e comercialmente robusta.
+
+
+
+
+
+
+
+2. Arquitetura e Tecnologias
+
+O LabManager foi estruturado como uma aplicação web moderna, separando claramente as responsabilidades entre o backend e o frontend.
+
+•
+Backend:
+
+•
+Framework: Django & Django REST Framework (DRF)
+
+•
+Autenticação: JWT (JSON Web Tokens) via djangorestframework-simplejwt.
+
+•
+Banco de Dados (Desenvolvimento): SQLite3
+
+•
+Arquitetura de Apps: O projeto foi organizado em apps modulares dentro de um diretório apps, incluindo clients, jobs, pricing, licensing, e o recém-criado financial.
+
+
+
+•
+Frontend:
+
+•
+Framework: React (com Vite.js)
+
+•
+Estilização: TailwindCSS, com componentes shadcn/ui para uma base de UI profissional.
+
+•
+Ícones: Lucide Icons
+
+•
+Gráficos: Recharts
+
+•
+Estrutura: Baseada em componentes, páginas e serviços, com roteamento gerenciado por react-router-dom.
+
+
+
+•
+Comunicação:
+
+•
+API: Interação via API RESTful.
+
+•
+CORS: Configurado para permitir a comunicação segura entre o frontend e o backend, mesmo em domínios diferentes.
+
+
+
+
+
+
+3. Funcionalidades Implementadas (Estado de Entrega)
+
+A tabela abaixo detalha o status de cada funcionalidade no momento da entrega final do chat.
+
+Categoria
+Funcionalidade
+Status
+Descrição Detalhada
+Core & Estabilidade
+Autenticação de Usuário (Login)
+Completo
+Sistema de login seguro com JWT, incluindo tokens de acesso e atualização.
+
+
+Botão de Mostrar/Ocultar Senha
+Completo
+Melhoria de UX na tela de login para permitir a verificação da senha digitada.
+
+
+Acesso Público via URL
+Completo
+Configuração dos servidores (Vite e Django) para permitir acesso externo através de URLs públicas temporárias.
+Licenciamento & Planos
+Sistema de Planos (Freemium)
+Completo
+Backend com modelos para 3 planos (Gratuito, Básico, Premium) e middleware para verificação de licença.
+
+
+Interface de Planos e Limites
+Completo
+Frontend com página de planos, indicador de licença no layout e modais de aviso ao atingir limites.
+Design e UI/UX
+Redesign do Dashboard
+Completo
+Dashboard redesenhado com inspiração no LabFácil, usando cores pastéis, KPIs visuais e gráficos.
+
+
+Padronização de Layout
+Completo
+O layout profissional do dashboard foi estendido para as páginas de Clientes e Trabalhos, garantindo consistência.
+Funcionalidades CRUD
+Cadastro e Listagem de Clientes
+Completo
+Formulário de criação e página de listagem de clientes totalmente funcionais.
+
+
+Cadastro e Listagem de Trabalhos
+Completo
+Formulário de criação e página de listagem de trabalhos totalmente funcionais.
+
+
+Ações (Editar/Excluir)
+Pendente
+Os botões de ações nas tabelas foram criados na UI, mas a lógica de exclusão e edição não foi implementada.
+Funcionalidades Avançadas
+Ajuste de Preço por Cliente
+Parcial (Backend)
+O campo price_adjustment_percentage foi adicionado ao modelo Client no backend. A lógica no frontend não foi implementada.
+
+
+Roteiro de Entregas
+Parcial
+Backend: Modelos de dados criados. Frontend: Página completa com UI para listagem, filtro por data e função de impressão de roteiro.
+
+
+Sistema Financeiro
+Parcial (Backend)
+App financial criada com modelos para Contas a Receber, Fechamentos e Configurações do Laboratório (logo). APIs iniciadas.
+
+
+Personalização com Logo
+Parcial (Backend)
+Modelo LabSettings criado para armazenar a logo e outras informações de personalização. Nenhuma implementação no frontend.
+
+
+
+
+
+
+
+4. Bugs e Pontos de Atenção Corrigidos
+
+•
+Persistência de Dados: Foi identificado que os dados de clientes e trabalhos estavam sendo perdidos. A causa provável era o reinício do servidor de desenvolvimento ou a falta de uma base de dados persistente configurada, o que foi resolvido ao longo do desenvolvimento.
+
+•
+Funcionalidades Inoperantes: As páginas de cadastro que não funcionavam foram corrigidas através da criação das rotas, formulários e integração com as APIs.
+
+•
+Credenciais Inválidas: O problema de login foi rastreado até a URL da API estar incorreta no frontend (usando localhost em vez da URL pública), o que foi devidamente corrigido.
+
+
+
+
+5. Próximos Passos Estratégicos
+
+Com base no estado de entrega, os próximos passos para finalizar o produto são:
+
+1.
+Finalizar Funcionalidades Avançadas:
+
+•
+Conectar a UI do Roteiro de Entregas com as APIs do backend.
+
+•
+Desenvolver a UI para o sistema financeiro (Contas a Receber, Fechamentos).
+
+•
+Implementar a UI para upload de logo e personalização de relatórios.
+
+•
+Integrar o cálculo de ajuste de preço do cliente ao criar um novo trabalho.
+
+
+
+2.
+Implementar Ações CRUD:
+
+•
+Adicionar a lógica para os botões de Editar e Excluir nas páginas de Clientes e Trabalhos.
+
+
+
+3.
+Testes de Regressão e Qualidade:
+
+•
+Realizar testes completos em todas as funcionalidades para garantir que as novas implementações não quebraram o que já estava funcionando.
+
+
+
+4.
+Deploy em Produção:
+
+•
+Seguir o Guia de Deploy e Comercialização já fornecido anteriormente para configurar um servidor de produção (ex: DigitalOcean, AWS), configurar um banco de dados robusto (PostgreSQL), e realizar o deploy das aplicações Django e React.
+
+
+
+5.
+Comercialização:
+
+•
+Integrar um gateway de pagamento (Stripe, PagSeguro) para gerenciar as assinaturas dos planos Básico e Premium.
+
+•
+Iniciar a estratégia de marketing e vendas para atrair os primeiros clientes.
+
+
+
+Este dossiê reflete o trabalho substancial realizado e posiciona o LabManager como um produto com enorme potencial de mercado, pronto para as etapas finais 
+
+
+Preciso implementar duas novas funcionalidades no sistema DentalFlow (sistema de gerenciamento para laboratórios de prótese dentária):
+
+1. AGENTE DE IA PARA COMANDOS SIMPLES
+2. LOGIN DE COLABORADOR COM PERMISSÕES RESTRITAS
+
+O código-fonte completo está disponível no arquivo ZIP "labmanager_completo.zip" (renomeado para DentalFlow). O sistema é desenvolvido com Django (backend) e React (frontend).
+
+## PARTE 1: AGENTE DE IA PARA COMANDOS SIMPLES
+
+Implemente um assistente de IA integrado ao DentalFlow que permita aos usuários executar ações através de comandos em linguagem natural, como:
+
+- "Gerar relatório de contas a receber do mês atual"
+- "Fazer fechamento mensal de maio"
+- "Mostrar trabalhos pendentes do cliente X"
+- "Listar entregas programadas para hoje"
+
+Requisitos técnicos:
+- Integrar uma API de processamento de linguagem natural (OpenAI API ou alternativa)
+- Criar um componente de chat/comando no frontend
+- Desenvolver endpoints no backend para processar comandos e executar ações correspondentes
+- Implementar um sistema de mapeamento entre comandos em linguagem natural e funções do sistema
+- Garantir que o agente tenha acesso apenas às funcionalidades permitidas pelo nível de usuário
+
+## PARTE 2: LOGIN DE COLABORADOR COM PERMISSÕES RESTRITAS
+
+Implementar um segundo tipo de usuário "Colaborador" com permissões limitadas:
+
+Permissões DO Colaborador:
+- Cadastrar novos trabalhos
+- Cadastrar novos clientes
+- Dar baixa em trabalhos (marcar como concluídos)
+- Visualizar roteiros de entrega
+- Acessar informações básicas de clientes e trabalhos
+
+Restrições DO Colaborador:
+- SEM acesso a relatórios financeiros
+- SEM permissão para alterar configurações do sistema
+- SEM acesso a informações de faturamento
+- SEM permissão para excluir registros
+
+Requisitos técnicos:
+- Modificar o modelo de usuário para incluir o tipo (admin/colaborador)
+- Implementar middleware de verificação de permissões
+- Criar tela de cadastro de colaboradores (acessível apenas por administradores)
+- Adaptar o frontend para mostrar/ocultar funcionalidades com base no tipo de usuário
+- Implementar redirecionamentos adequados quando um colaborador tenta acessar áreas restritas
+
+Estrutura atual relevante:
+- Backend: Django com Django REST Framework
+- Frontend: React com componentes modernos
+- Autenticação: JWT (JSON Web Tokens)
+- Banco de dados: PostgreSQL
+
+Por favor, forneça:
+1. Código para implementação do agente de IA
+2. Modificações necessárias no sistema de autenticação e permissões
+3. Alterações no frontend para acomodar ambas as funcionalidades
+4. Documentação de uso para ambos os recursos
+
+
+
+
